@@ -1,0 +1,90 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <title>Lunch Money</title>
+</head>
+
+<body>
+    <div>
+        <div>
+            <h1>Members</h1>
+            <div>
+                <label for="">Title</label>
+                <input type="text" class="member-checkbox" id="title" value="Tiền ăn trưa">
+            </div>
+            <div>
+                <label for="">Total</label>
+                <input type="number" id="total" value="160000">
+            </div>
+            <div>
+                <label for="">vuongnv</label>
+                <input type="checkbox" class="member-checkbox" value="vuongnv">
+            </div>
+            <div>
+                <label for="">ngocnd</label>
+                <input type="checkbox" class="member-checkbox" value="ngocnd">
+            </div>
+            <div>
+                <label for="">longng</label>
+                <input type="checkbox" class="member-checkbox" value="longng">
+            </div>
+            <div>
+                <label for="">hunghoang</label>
+                <input type="checkbox" class="member-checkbox" value="hunghoang">
+            </div>
+            <div>
+                <label for="">dungnt</label>
+                <input type="checkbox" class="member-checkbox" value="dungnt">
+            </div>
+            <div>
+                <label for="">tule</label>
+                <input type="checkbox" class="member-checkbox" value="tule">
+            </div>
+            <div>
+                <label for="">ShowQr</label>
+                <input type="checkbox" id="showQr" value=false>
+            </div>
+        </div>
+        <div>
+            <button id="submit">Send</button>
+        </div>
+    </div>
+</body>
+<script>
+    $(document).ready(function () {
+        $('#submit').click(() => {
+            console.log('submit')
+            const checkedMembers = $('.member-checkbox:checked').map(function () {
+                return $(this).val();
+            }).get();
+
+
+            const title = $('#title').val();
+            const total = $('#total').val();
+            const showQr = $('#showQr').prop('checked');
+            const data = {
+                title,
+                total,
+                members: checkedMembers.join(','),
+                showQr
+            }
+            console.log('data members:', data);
+            const baseUrl = 'http://localhost:3000/notify-telegram';
+           
+            $.ajax({
+                url: baseUrl,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (res) {
+                    console.log('✅ Success:', res);
+                }
+            });
+        })
+    })
+</script>
+
+</html>
