@@ -1,13 +1,13 @@
 const { Telegraf } = require("telegraf");
 const { SocksProxyAgent } = require('socks-proxy-agent');
 
-const proxyUrl ='socks5h://meeyproxy:CjFbmZHlPu1sVFeQ4z9F@152.42.251.165:1080';
+const proxyUrl = process.env.TELEGRAM_PROXY;
 const agent = new SocksProxyAgent(proxyUrl);
-const groupId = '-4740117964'
+const groupId = process.env.TELEGRAM_GROUP_ID;
 
 class TeleBotUtil {
   constructor() {
-    this.bot = new Telegraf("5736888968:AAHmIox0-M0tVX0bPgv-nCVFrWw3BMGYQxo", {
+    this.bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN, {
       telegram: {
         agent: agent
       }

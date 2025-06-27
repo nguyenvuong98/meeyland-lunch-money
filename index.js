@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser')
+require('dotenv').config();
 const TelegramService = require('./TelegramService');
 
 const app = express()
@@ -23,5 +24,6 @@ app.post('/notify-telegram', async function(req, res) {
 });
 
 app.listen(3000, () => {
-    console.log('server listen port 3000')
+  console.log(process.env.TELEGRAM_BOT_TOKEN);
+  console.log('server listen port 3000')
 })
