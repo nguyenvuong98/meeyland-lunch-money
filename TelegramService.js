@@ -17,6 +17,10 @@ class TelegramService {
             console.error('sendLunchMoney error', error);
         }
     }
+
+    async sendReportByMonth() {
+        
+    }
 }
 
 module.exports = new TelegramService();

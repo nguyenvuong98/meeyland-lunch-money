@@ -3,7 +3,8 @@ const { SocksProxyAgent } = require('socks-proxy-agent');
 
 const proxyUrl = process.env.TELEGRAM_PROXY;
 const agent = new SocksProxyAgent(proxyUrl);
-const groupId = process.env.TELEGRAM_GROUP_ID;
+//const groupId = process.env.TELEGRAM_GROUP_ID;
+const groupId = process.env.TELEGRAM_GROUP_ID_STAG;
 
 class TeleBotUtil {
   constructor() {
@@ -24,6 +25,13 @@ class TeleBotUtil {
 
     this.bot.telegram.sendPhoto(groupId, url, {
       caption: caption,
+      parse_mode: 'HTML'
+    });
+  }
+
+  sendImgSource(buffer) {
+    this.bot.telegram.sendPhoto(groupId, { source: buffer}, {
+      caption: '📊 <b>Lunch Money Chart</b>',
       parse_mode: 'HTML'
     });
   }

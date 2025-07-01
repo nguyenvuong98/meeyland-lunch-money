@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser')
 require('dotenv').config();
 const TelegramService = require('./TelegramService');
+const LunchMoneyService = require('./MoneyLunchService');
+const ChartService = require('./ChartService');
 
 const app = express()
 app.use(bodyParser.json())
@@ -21,6 +23,19 @@ app.post('/notify-telegram', async function(req, res) {
   const {title, members, total, showQr} = req.body;
   await TelegramService.sendLunchMoney(title, members, total, showQr);
   res.json({data: true})
+});
+
+app.post('/luch-money', async function(req, res) {
+  const body = req.body
+  console.log('body', body)
+  const data = await LunchMoneyService.create(req.body);
+  res.json({data})
+});
+
+app.post('/chart-by-user', async function(req, res) {
+  const {user_name} = req.body
+  const data = await ChartService.showChartByUser(user_name);
+  res.json({data})
 });
 
 app.listen(3000, () => {
