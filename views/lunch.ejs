@@ -51,9 +51,14 @@
         <div>
             <button id="submit">Send</button>
         </div>
+        <div>
+            <button id="submit-report">Send report</button>
+        </div>
     </div>
 </body>
 <script>
+    //nst baseUrl = 'http://64.44.115.238:3000'
+    const baseUrl = 'http://localhost:3000'
     $(document).ready(function () {
         $('#submit').click(() => {
             console.log('submit')
@@ -71,18 +76,40 @@
                 members: checkedMembers.join(','),
                 showQr
             }
-            console.log('data members:', data);
-            const baseUrl = 'http://64.44.115.238:3000/notify-telegram';
+            const url = `${baseUrl}/notify-telegram`;
             //const baseUrl = 'http://localhost:3000/notify-telegram';
            
             $.ajax({
-                url: baseUrl,
+                url: url,
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function (res) {
                     alert('success')
-                    console.log('✅ Success:', res);
+                }
+            });
+        })
+        $('#submit-report').click(() => {
+            const checkedMembers = $('.member-checkbox:checked').map(function () {
+                return $(this).val();
+            }).get();
+
+            if (!checkedMembers && !checkedMembers.length) { return }
+            const user_name = checkedMembers[0];
+
+            if (!user_name) { return }
+
+            const data = {
+                user_name: user_name
+            }
+            const url = `${baseUrl}/chart-by-user`;
+            $.ajax({
+                url: url,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (res) {
+                    alert('success')
                 }
             });
         })

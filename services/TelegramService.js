@@ -1,4 +1,4 @@
-const TeleBotUtil = require("./TeleBotUtil");
+const TeleBotUtil = require("../TeleBotUtil");
 const moment = require('moment');
 class TelegramService {
     async sendLunchMoney(title, members, total, showQr = true) {

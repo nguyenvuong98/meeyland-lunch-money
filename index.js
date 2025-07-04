@@ -1,9 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser')
 require('dotenv').config();
-const TelegramService = require('./TelegramService');
-const LunchMoneyService = require('./MoneyLunchService');
-const ChartService = require('./ChartService');
+const TelegramService = require('./services/TelegramService');
+const LunchMoneyService = require('./services/MoneyLunchService');
+const ChartService = require('./services/ChartService');
 
 const app = express()
 app.use(bodyParser.json())

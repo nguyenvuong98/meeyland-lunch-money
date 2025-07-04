@@ -2,11 +2,11 @@ const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
 const fs = require('fs');
 const path = require('path');
 const fsPromises = require('fs/promises');
-const LunchMoneyRepository = require('./repository/lunch_money.repository');
+const LunchMoneyRepository = require('../repository/lunch_money.repository');
 const width = 600;
 const height = 400;
 const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour: '#fff' });
-const TeleBotUtil = require("./TeleBotUtil");
+const TeleBotUtil = require("../TeleBotUtil");
 const moment = require('moment');
 
 class ChartService {
@@ -18,7 +18,9 @@ class ChartService {
         const labels = []
         const dataValues = []
         const waterValues = []
+        let totalMoney = 0;
         lunchMoney.forEach(item => {
+            totalMoney += item.amount;
             const label = moment(item.createdAt).format('DD/MM');
             if (!labels.includes(label)) {
                 labels.push(label)
@@ -49,7 +51,7 @@ class ChartService {
             
 
             if (indexWater >= 0) {
-                waterValues[indexData].value += item.amount
+                waterValues[indexWater].value += item.amount
             } else {
                 waterValues.push({
                     date: label,
@@ -64,7 +66,7 @@ class ChartService {
             }
         });
 
-        await this.saveImgChart(user_name, labels, dataValues.map(item => item.value), waterValues.map(item => item.value))
+        await this.saveImgChart(user_name, totalMoney, labels, dataValues.map(item => item.value), waterValues.map(item => item.value))
         return true
     }
 
@@ -72,7 +74,7 @@ class ChartService {
 
     }
 
-    async saveImgChart(user_name, labels = [], dataValues = [], waterValues = []) {
+    async saveImgChart(user_name, totalMoney = 0, labels = [], dataValues = [], waterValues = []) {
         // Chart config
         const config = {
             type: 'line',
@@ -96,7 +98,7 @@ class ChartService {
                 plugins: {
                   title: {
                     display: true,
-                    text: `Biểu đồ vung tiền của ${user_name}`,
+                    text: `Biểu đồ tiêu tiền của ${user_name}: ${totalMoney}`,
                   }
                 }
               }

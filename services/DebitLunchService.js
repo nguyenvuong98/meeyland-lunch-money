@@ -1,4 +1,4 @@
-const LunchMoneyRepository  = require('./repository/lunch_money.repository');
+const LunchMoneyRepository  = require('../repository/lunch_debit.repository');
 
 class LunchMoneyService {
     async create(input = []) {
