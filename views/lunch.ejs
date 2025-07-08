@@ -16,10 +16,51 @@
                 <input type="text" class="member-checkbox" id="title" value="Tiền ăn trưa">
             </div>
             <div>
-                <label for="">Total</label>
-                <input type="number" id="total" value="160000">
+                <label for="">Loại bill</label>
+                <select name="type" id="moneyType">
+                    <option value="0">Ăn trưa</option>
+                    <option value="1">Uống nước</option>
+                </select>
             </div>
             <div>
+                <label for="">Total</label>
+                <input type="number" id="total" value="160000">
+                <button id="share-money">Share Money</button>
+            </div>
+            <div>
+                <div class="group-item">
+                    <input type="checkbox" class="group-checkbox">
+                    <input type="text" readonly class="group-name" value="vuongnv">
+                    <input type="number" class="group-amount" value="0">
+                </div>
+                <div class="group-item">
+                    <input type="checkbox" class="group-checkbox">
+                    <input type="text" readonly class="group-name" value="ngocnd">
+                    <input type="number" class="group-amount" value="0">
+                </div>
+                <div class="group-item">
+                    <input type="checkbox" class="group-checkbox">
+                    <input type="text" readonly class="group-name" value="longng">
+                    <input type="number" class="group-amount" value="0">
+                </div>
+                <div class="group-item">
+                    <input type="checkbox" class="group-checkbox">
+                    <input type="text" readonly class="group-name" value="hunghoang">
+                    <input type="number" class="group-amount" value="0">
+                </div>
+                <div class="group-item">
+                    <input type="checkbox" class="group-checkbox">
+                    <input type="text" readonly class="group-name" value="dungnt">
+                    <input type="number" class="group-amount" value="0">
+                </div>
+                <div class="group-item">
+                    <input type="checkbox" class="group-checkbox">
+                    <input type="text" readonly class="group-name" value="tule">
+                    <input type="number" class="group-amount" value="0">
+                </div>
+            </div>
+
+            <!-- <div>
                 <label for="">vuongnv</label>
                 <input type="checkbox" class="member-checkbox" value="vuongnv">
             </div>
@@ -38,11 +79,12 @@
             <div>
                 <label for="">dungnt</label>
                 <input type="checkbox" class="member-checkbox" value="dungnt">
+                <input type="text" class="grouped-input" value="value1">
             </div>
             <div>
                 <label for="">tule</label>
                 <input type="checkbox" class="member-checkbox" value="tule">
-            </div>
+            </div> -->
             <div>
                 <label for="">ShowQr</label>
                 <input type="checkbox" id="showQr" value=false>
@@ -54,31 +96,72 @@
         <div>
             <button id="submit-report">Send report</button>
         </div>
+        <div>
+            <button id="submit-test">Send test</button>
+        </div>
     </div>
 </body>
 <script>
     //nst baseUrl = 'http://64.44.115.238:3000'
     const baseUrl = 'http://localhost:3000'
     $(document).ready(function () {
+        const getResult = () => {
+            const result = [];
+            const moneyType = $('#moneyType').val();
+            $('.group-item').each(function () {
+                const $item = $(this);
+                const isChecked = $item.find('.group-checkbox').is(':checked');
+
+                if (isChecked) {
+                    const user_name = $item.find('.group-name').val();
+                    const amount = parseInt($item.find('.group-amount').val());
+
+                    result.push({ user_name, amount, type: moneyType });
+                }
+            })
+            return result;
+        }
+        $('#share-money').click(() => {
+            const total = parseInt($('#total').val());
+            const membersChecked = getResult();
+
+            if (!membersChecked?.length) { return }
+
+            const moneyUser = Math.ceil(total / membersChecked.length)
+            console.log('membersChecked', membersChecked)
+            membersChecked.forEach(({ user_name, amount }) => {
+                console.log('name amount', name, amount)
+                $('.group-item').each(function () {
+                    const $item = $(this);
+                    const isChecked = $item.find('.group-checkbox').is(':checked');
+                    const groupName = $item.find('.group-name').val();
+
+                    if (isChecked && groupName === user_name) {
+                        $item.find('.group-amount').val(moneyUser);
+                    }
+                });
+            });
+        })
+        $('#submit-test').click(function (e) {
+
+            const result = getResult();
+            console.log('result', result)
+        });
         $('#submit').click(() => {
             console.log('submit')
-            const checkedMembers = $('.member-checkbox:checked').map(function () {
-                return $(this).val();
-            }).get();
-
-
+            const result = getResult();
+            console.log('result', result)
             const title = $('#title').val();
             const total = $('#total').val();
             const showQr = $('#showQr').prop('checked');
             const data = {
                 title,
                 total,
-                members: checkedMembers.join(','),
+                members: result,
                 showQr
             }
             const url = `${baseUrl}/notify-telegram`;
-            //const baseUrl = 'http://localhost:3000/notify-telegram';
-           
+
             $.ajax({
                 url: url,
                 type: 'POST',

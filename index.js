@@ -38,6 +38,13 @@ app.post('/chart-by-user', async function(req, res) {
   res.json({data})
 });
 
+app.post('/report-by-user', async function(req, res) {
+  const {user_name} = req.body
+  const data = await LunchMoneyService.reportUser(user_name);
+  await TelegramService.sendReportByMonth({user_name, ...data})
+  res.json({data})
+});
+
 app.listen(3000, () => {
   console.log(process.env.TELEGRAM_BOT_TOKEN);
   console.log('server listen port 3000')

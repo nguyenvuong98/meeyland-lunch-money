@@ -1,12 +1,15 @@
 const TeleBotUtil = require("../TeleBotUtil");
+const LunchMoneyService = require('./MoneyLunchService');
 const moment = require('moment');
 class TelegramService {
     async sendLunchMoney(title, members, total, showQr = true) {
         try{
+            LunchMoneyService.create(members);
+            const memberName = members.map(user => user.user_name).join(', ');
             if (showQr) {
                 const myQrUrl = 'https://static.meeyid.com/uploads/8043b789-5c60-4feb-ba53-289c4a77659b.png';
                 const formatted = moment().format('YYYY-MM-DD HH:mm:ss');
-                const caption = `<b>${title  ||'Lunch money'}</b>\n<b>Total:</b> <code>${total}</code>\n<b>Member:</b> ${members}\n<b>Date:</b> ${formatted}`;
+                const caption = `<b>${title  ||'Lunch money'}</b>\n<b>Total:</b> <code>${total}</code>\n<b>Member:</b> ${memberName}\n<b>Date:</b> ${formatted}`;
                 await TeleBotUtil.sendImgUrl(myQrUrl, caption);
             } else {
                 await TeleBotUtil.sendLogMessage(title);
@@ -18,8 +21,13 @@ class TelegramService {
         }
     }
 
-    async sendReportByMonth() {
-        
+    async sendReportByMonth({user_name, totalMoneyLunch, totalMoneyWater, total}) {
+        if (!user_name) { return }
+
+        const month = new Date().getMonth() + 1;
+        const message = `<b>Báo cáo tháng ${month}</b>\n<b>Tên:</b> ${user_name}\n<b>Tiền ăn:</b> <code>${totalMoneyLunch}</code>\n<b>Tiền nước:</b> <code>${totalMoneyWater}</code>\n<b>Tổng tiền:</b> <code>${total}</code>`
+        await TeleBotUtil.sendMessageHTML(message);
+        return true;
     }
 }
 
