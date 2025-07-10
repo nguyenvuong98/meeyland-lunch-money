@@ -21,11 +21,27 @@ class TelegramService {
         }
     }
 
-    async sendReportByMonth({user_name, totalMoneyLunch, totalMoneyWater, total}) {
+    async sendReportByMonth({user_name, totalMoneyLunch, totalMoneyWater, total, totalPayment}) {
         if (!user_name) { return }
 
         const month = new Date().getMonth() + 1;
-        const message = `<b>Báo cáo tháng ${month}</b>\n<b>Tên:</b> ${user_name}\n<b>Tiền ăn:</b> <code>${totalMoneyLunch}</code>\n<b>Tiền nước:</b> <code>${totalMoneyWater}</code>\n<b>Tổng tiền:</b> <code>${total}</code>`
+        const money = total - totalPayment;
+        const message = `<b>Báo cáo tháng ${month}</b>\n<b>Tên:</b> ${user_name}\n<b>Tiền ăn:</b> <code>${totalMoneyLunch}</code>\n<b>Tiền nước:</b> <code>${totalMoneyWater}</code>\n<b>Tổng tiền:</b> <code>${total}</code>\n`
+                        + `<b>Đã thanh toán</b>: <code>${totalPayment}</code>\n`
+                        + `<b>${money >= 0 ? 'Còn thiếu' : 'Còn thừa'}</b>: <code>${Math.abs(money)}</code>`
+        await TeleBotUtil.sendMessageHTML(message);
+        return true;
+    }
+
+    async sendUserPayment(input = []) {
+        if (!input?.length) { return }
+
+        const month = new Date().getMonth() +1;
+        let message = '<b>Payment notify</b>\n'
+        input.forEach(item => {
+            message += `${item.user_name} đã thanh toán tiền ăn tháng ${item.month ? item.month : month}: <code>${item.payment}</code> vnd\n`
+        })
+
         await TeleBotUtil.sendMessageHTML(message);
         return true;
     }

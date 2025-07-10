@@ -8,6 +8,7 @@ const lunch_debit = new Schema({
     user_name: String,
     debit: Number,
     payment: Number,
+    month: Number,
 }, {
     collection: 'lunch_debit',
     timestamps: true

@@ -1,4 +1,5 @@
 const LunchMoneyRepository = require('../repository/lunch_money.repository');
+const LunchDebitRepository = require('../repository/lunch_debit.repository');
 
 class LunchMoneyService {
     async create(input = []) {
@@ -21,6 +22,8 @@ class LunchMoneyService {
         if (!user_name) { return; }
 
         const records = await LunchMoneyRepository.findInMonth(user_name);
+        const paymentRecord = await LunchDebitRepository.findInMonth(user_name);
+        const totalPayment = paymentRecord.reduce((sum, item) => item.payment + sum, 0);
 
         const totalMoneyLunch = records.reduce((sum, item) => {
             return item.type === '0' ? sum + item.amount : sum;
@@ -32,7 +35,7 @@ class LunchMoneyService {
 
         const total = totalMoneyLunch + totalMoneyWater;
 
-        return { totalMoneyLunch, totalMoneyWater, total};
+        return { totalMoneyLunch, totalMoneyWater, total, totalPayment};
     }
 }
 
