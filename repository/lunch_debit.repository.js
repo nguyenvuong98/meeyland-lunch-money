@@ -33,6 +33,10 @@ class LunchDebitRepository {
     static async count(query = {}) {
         return await models.lunch_debit.countDocuments(query);
     }
+
+    static async find(query = {}) {
+        return await models.lunch_debit.find(query);
+    }
 }
 
 module.exports = LunchDebitRepository;

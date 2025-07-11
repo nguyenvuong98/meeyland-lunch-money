@@ -11,6 +11,10 @@ class LunchMoneyService {
                 type: item.type,
                 amount: item.amount
             }
+
+            if (item.month) {
+                insertData['month'] = item.month
+            }
             proccess.push(LunchMoneyRepository.create(insertData))
         })
 
@@ -18,11 +22,24 @@ class LunchMoneyService {
         return { data: true };
     }
 
-    async reportUser(user_name) {
+    async reportUser(user_name, month) {
         if (!user_name) { return; }
 
-        const records = await LunchMoneyRepository.findInMonth(user_name);
-        const paymentRecord = await LunchDebitRepository.findInMonth(user_name);
+        let records = []
+
+        if (!month) {
+            records = await LunchMoneyRepository.findInMonth(user_name);
+        } else {
+            records = await LunchMoneyRepository.find({ user_name, month})
+        }
+
+        let paymentRecord = []
+
+        if (!month) {
+            paymentRecord = await LunchDebitRepository.findInMonth(user_name);
+        } else {
+            paymentRecord = await LunchDebitRepository.find({user_name, month});
+        }
         const totalPayment = paymentRecord.reduce((sum, item) => item.payment + sum, 0);
 
         const totalMoneyLunch = records.reduce((sum, item) => {

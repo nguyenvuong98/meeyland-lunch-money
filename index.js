@@ -44,9 +44,9 @@ app.post('/chart-by-user', async function(req, res) {
 });
 
 app.post('/report-by-user', async function(req, res) {
-  const {user_name} = req.body
-  const data = await LunchMoneyService.reportUser(user_name);
-  await TelegramService.sendReportByMonth({user_name, ...data})
+  const {user_name, month} = req.body
+  const data = await LunchMoneyService.reportUser(user_name, month);
+  await TelegramService.sendReportByMonth({user_name, month, ...data})
   res.json({data})
 });
 

@@ -32,6 +32,10 @@ class MessageChatRepository {
     static async count(query = {}) {
         return await models.lunch_money.countDocuments(query);
     }
+
+    static async find(query = {}) {
+        return await models.lunch_money.find(query);
+    }
 }
 
 module.exports = MessageChatRepository;
