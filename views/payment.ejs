@@ -1,11 +1,16 @@
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <title>Lunch Money Payment</title>
 </head>
+
 <body>
+    <div>
+        <a href="/lunch">Go to Lunch page</a>
+    </div>
     <div>
         <h1>Payment</h1>
         <div>
@@ -34,27 +39,79 @@
             <input type="number" name="payment" id="userPayment" value="0">
         </div>
         <div>
-            <button id="submit">Send</button>
+            <button id="submit">Send Payment</button>
+        </div>
+        <div>
+            <button id="submitReport">Report user</button>
+        </div>
+        <div>
+            <button id="submitChart">Report chart user</button>
         </div>
     </div>
     <script>
-        const baseUrl = 'http://localhost:3000'
-         $(document).ready(function () {
+        const baseUrl = 'http://64.44.115.238:3000'
+        //const baseUrl = 'http://localhost:3000'
+        $(document).ready(function () {
             $('#monthSelect').val(new Date().getMonth() + 1)
             $('#submit').click(() => {
                 const month = parseInt($('#monthSelect').val());
                 const user_name = $('#userSelect').val();
                 const payment = parseInt($('#userPayment').val());
 
-                const body = {
-                    month,
-                    user_name,
-                    payment,
-                }
+                const body = [
+                    {
+                        month,
+                        user_name,
+                        payment,
+                    }
+                ]
 
                 console.log('result', body)
+                const url = `${baseUrl}/payment`;
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(body),
+                    success: function (res) {
+                        alert('success')
+                    }
+                });
             })
-         })
+            $('#submitReport').click(() => {
+                const user_name = $('#userSelect').val();
+                const body = {
+                    user_name
+                }
+                const url = `${baseUrl}/report-by-user`;
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(body),
+                    success: function (res) {
+                        alert('success')
+                    }
+                });
+            })
+            $('#submitChart').click(() => {
+                const user_name = $('#userSelect').val();
+                const body = {
+                    user_name
+                }
+                const url = `${baseUrl}/chart-by-user`;
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(body),
+                    success: function (res) {
+                        alert('success')
+                    }
+                });
+            })
+        })
     </script>
 </body>
+
 </html>

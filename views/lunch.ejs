@@ -85,25 +85,18 @@
                 <label for="">tule</label>
                 <input type="checkbox" class="member-checkbox" value="tule">
             </div> -->
-            <div>
-                <label for="">ShowQr</label>
-                <input type="checkbox" id="showQr" value=false>
-            </div>
         </div>
         <div>
             <button id="submit">Send</button>
         </div>
-        <div>
-            <button id="submit-report">Send report</button>
-        </div>
-        <div>
-            <button id="submit-test">Send test</button>
-        </div>
+    </div>
+    <div>
+        <a href="/payment">Go to Payment page</a>
     </div>
 </body>
 <script>
-    //nst baseUrl = 'http://64.44.115.238:3000'
-    const baseUrl = 'http://localhost:3000'
+    const baseUrl = 'http://64.44.115.238:3000'
+    //const baseUrl = 'http://localhost:3000'
     $(document).ready(function () {
         const getResult = () => {
             const result = [];
@@ -142,50 +135,20 @@
                 });
             });
         })
-        $('#submit-test').click(function (e) {
-
-            const result = getResult();
-            console.log('result', result)
-        });
         $('#submit').click(() => {
             console.log('submit')
             const result = getResult();
             console.log('result', result)
             const title = $('#title').val();
             const total = $('#total').val();
-            const showQr = $('#showQr').prop('checked');
             const data = {
                 title,
                 total,
                 members: result,
-                showQr
+                showQr: true,
             }
             const url = `${baseUrl}/notify-telegram`;
 
-            $.ajax({
-                url: url,
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(data),
-                success: function (res) {
-                    alert('success')
-                }
-            });
-        })
-        $('#submit-report').click(() => {
-            const checkedMembers = $('.member-checkbox:checked').map(function () {
-                return $(this).val();
-            }).get();
-
-            if (!checkedMembers && !checkedMembers.length) { return }
-            const user_name = checkedMembers[0];
-
-            if (!user_name) { return }
-
-            const data = {
-                user_name: user_name
-            }
-            const url = `${baseUrl}/chart-by-user`;
             $.ajax({
                 url: url,
                 type: 'POST',
