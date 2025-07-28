@@ -9,12 +9,10 @@ class LunchMoneyService {
             const insertData = {
                 user_name: item.user_name,
                 type: item.type,
-                amount: item.amount
+                amount: item.amount,
+                month: item.month ? item.month : (new Date().getMonth() + 1)
             }
 
-            if (item.month) {
-                insertData['month'] = item.month
-            }
             proccess.push(LunchMoneyRepository.create(insertData))
         })
 

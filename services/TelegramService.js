@@ -45,6 +45,51 @@ class TelegramService {
         await TeleBotUtil.sendMessageHTML(message);
         return true;
     }
+
+    async sendDebtNotifi({data, userName, month}) {
+        if (!data || !userName) return;
+
+        const targetMonth = month ? month : new Date().getMonth() + 1;
+        const {totalMoneyLunch, totalMoneyWater, total, totalPayment} = data;
+        const money = total - totalPayment;
+        const TAGS  = [
+            {
+                name: 'vuongnv',
+                tag: '@vuongnv98'
+            },
+            {
+                name: 'ngocnd',
+                tag: '@ngocnd95'
+            },
+            {
+                name: 'longng',
+                tag: '@hin2510'
+            },
+            {
+                name: 'dungnt',
+                tag: '@dungnt1709'
+            },
+            {
+                name: 'tule',
+                tag: '@tule111'
+            },
+            {
+                name: 'hunghoang',
+                tag: '@hungu1099'
+            }
+        ]
+        const tag = TAGS.find(x => x.name === userName);
+
+            if(!tag) return;
+
+        let message = `${tag.tag} tháng ${targetMonth} ${money >= 0 ? 'Còn thiếu' : 'Còn thừa'} <code>${Math.abs(money)}</code>\n`;
+        if (money >= 0) {
+            message += `<b>MAU TRẢ NỢ!</b>`
+        }
+        await TeleBotUtil.sendMessageHTML(message)
+
+        return true
+    }
 }
 
 module.exports = new TelegramService();

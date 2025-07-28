@@ -57,6 +57,13 @@ app.post('/payment', async function(req, res) {
   res.json({data})
 });
 
+app.post('/debt', async function(req, res) {
+  const {user_name, month} = req.body
+  const data = await LunchMoneyService.reportUser(user_name, month);
+  await TelegramService.sendDebtNotifi({data, userName: user_name, month})
+  res.json({data: true})
+});
+
 app.listen(3000, () => {
   console.log(process.env.TELEGRAM_BOT_TOKEN);
   console.log('server listen port 3000')
