@@ -2,10 +2,43 @@ const express = require('express');
 const bodyParser = require('body-parser')
 require('dotenv').config();
 const TelegramService = require('./services/TelegramService');
+const TeleBotUtil = require("./TeleBotUtil");
 const LunchMoneyService = require('./services/MoneyLunchService');
 const LunchDebitService = require('./services/LunchDebitService');
 const ChartService = require('./services/ChartService');
 
+global.members = [
+  {
+      name: 'vuongnv',
+      tag: '@vuongnv98',
+      username: 'vuongnv98',
+  },
+  {
+      name: 'ngocnd',
+      tag: '@ngocnd95',
+      username: 'ngocnd95',
+  },
+  {
+      name: 'longng',
+      tag: '@hin2510',
+      username: 'hin2510',
+  },
+  {
+      name: 'dungnt',
+      tag: '@dungnt1709',
+      username: 'dungnt1709',
+  },
+  {
+      name: 'tule',
+      tag: '@tule111',
+      username: 'tule111',
+  },
+  {
+      name: 'hunghoang',
+      tag: '@hungu1099',
+      username: 'hungu1099',
+  }
+]
 const app = express()
 app.use(bodyParser.json())
 app.set('views', 'views');
@@ -67,4 +100,15 @@ app.post('/debt', async function(req, res) {
 app.listen(3000, () => {
   console.log(process.env.TELEGRAM_BOT_TOKEN);
   console.log('server listen port 3000')
+})
+
+
+
+TeleBotUtil.on('report', async (message) => {
+  console.log('📩 Received notifyEvent:', message);
+  const user_name = message?.name;
+  const month = 7;
+  const data = await LunchMoneyService.reportUser(user_name, month);
+  await TelegramService.sendReportByMonth({user_name, month, ...data})
+  // Optional: reply back;
 })

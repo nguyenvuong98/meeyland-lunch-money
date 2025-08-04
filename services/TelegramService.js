@@ -1,6 +1,8 @@
 const TeleBotUtil = require("../TeleBotUtil");
 const LunchMoneyService = require('./MoneyLunchService');
 const moment = require('moment');
+
+
 class TelegramService {
     async sendLunchMoney(title, members, total, showQr = true) {
         try{
@@ -55,27 +57,33 @@ class TelegramService {
         const TAGS  = [
             {
                 name: 'vuongnv',
-                tag: '@vuongnv98'
+                tag: '@vuongnv98',
+                username: 'vuongnv98',
             },
             {
                 name: 'ngocnd',
-                tag: '@ngocnd95'
+                tag: '@ngocnd95',
+                username: 'ngocnd95',
             },
             {
                 name: 'longng',
-                tag: '@hin2510'
+                tag: '@hin2510',
+                username: 'hin2510',
             },
             {
                 name: 'dungnt',
-                tag: '@dungnt1709'
+                tag: '@dungnt1709',
+                username: 'dungnt1709',
             },
             {
                 name: 'tule',
-                tag: '@tule111'
+                tag: '@tule111',
+                username: 'tule111',
             },
             {
                 name: 'hunghoang',
-                tag: '@hungu1099'
+                tag: '@hungu1099',
+                username: 'hungu1099',
             }
         ]
         const tag = TAGS.find(x => x.name === userName);
