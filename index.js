@@ -53,7 +53,7 @@ app.post('/report-by-user', async function(req, res) {
 app.post('/payment', async function(req, res) {
   const body = req.body
   const data = await LunchDebitService.insertMany(body);
-  await TelegramService.sendUserPayment(body)
+  await TelegramService.sendUserPayment(body);
   res.json({data})
 });
 

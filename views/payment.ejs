@@ -47,6 +47,9 @@
         <div>
             <button id="submitChart">Report chart user</button>
         </div>
+        <div>
+            <button id="submitDebt">Report notifi debt user</button>
+        </div>
     </div>
     <script>
         //const baseUrl = 'http://64.44.115.238:3000'
@@ -80,8 +83,10 @@
             })
             $('#submitReport').click(() => {
                 const user_name = $('#userSelect').val();
+                const month = parseInt($('#monthSelect').val());
                 const body = {
-                    user_name
+                    user_name,
+                    month
                 }
                 const url = `${baseUrl}/report-by-user`;
                 $.ajax({
@@ -96,10 +101,30 @@
             })
             $('#submitChart').click(() => {
                 const user_name = $('#userSelect').val();
+                const month = parseInt($('#monthSelect').val());
                 const body = {
-                    user_name
+                    user_name,
+                    month
                 }
                 const url = `${baseUrl}/chart-by-user`;
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(body),
+                    success: function (res) {
+                        alert('success')
+                    }
+                });
+            })
+            $('#submitDebt').click(() => {
+                const user_name = $('#userSelect').val();
+                const month = parseInt($('#monthSelect').val());
+                const body = {
+                    user_name,
+                    month
+                }
+                const url = `${baseUrl}/debt`;
                 $.ajax({
                     url: url,
                     type: 'POST',

@@ -82,10 +82,11 @@ class TelegramService {
 
             if(!tag) return;
 
-        let message = `${tag.tag} tháng ${targetMonth} ${money >= 0 ? 'Còn thiếu' : 'Còn thừa'} <code>${Math.abs(money)}</code>\n`;
-        if (money >= 0) {
-            message += `<b>MAU TRẢ NỢ!</b>`
-        }
+        const childMsg = `${ money == 0 ? 'Đã thanh toán đầy đủ':  money > 0 ? 'Còn thiếu' : 'Còn thừa'}`;
+        let message = `${tag.tag} tháng ${targetMonth}  ${childMsg} <code>${Math.abs(money)}</code>\n`;
+        // if (money >= 0) {
+        //     message += `<b>MAU TRẢ NỢ!</b>`
+        // }
         await TeleBotUtil.sendMessageHTML(message)
 
         return true
