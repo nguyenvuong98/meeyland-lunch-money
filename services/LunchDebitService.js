@@ -1,4 +1,5 @@
 const LunchDebitRepository  = require('../repository/lunch_debit.repository');
+const moment = require('moment');
 
 class LunchDebitService {
     async insertMany(input = []) {
@@ -35,6 +36,22 @@ class LunchDebitService {
 
         await LunchDebitRepository.insertMany(record)
         return { data: true};
+    }
+
+    async showPayment(user_name) {
+        if (!user_name) { return }
+
+        const data = await LunchDebitRepository.find({user_name});
+
+        if (!data?.length) { return }
+
+        let message = `<b>Payment info - ${user_name}</b>\n`
+
+        data.forEach(item => {
+            message += `Đã thanh toán <code>${item.payment}</code> cho tháng <b>${item.month}</b> vào ngày ${moment(item.createdAt).format('DD/MM/YYYY')}\n`;
+        })
+
+        return message;
     }
 }
 

@@ -17,13 +17,28 @@ class TeleBotUtil extends EventEmitter {
         agent: agent
       }
     });
+    this.bot.command('help', async (ctx) => {
+      let messageCommand = `/help show list command available\n`;
+      messageCommand += `/showQR show QR code\n`;
+      messageCommand += `/report show report each month, eg: /report | /report -m=7\n`;
+      messageCommand += `/showChart show report as chart (only current month)\n`;
+      messageCommand += `/showPayment show all payment`;
+
+      ctx.reply(messageCommand);
+    });
     this.bot.command('report', async (ctx) => {
       const userId = ctx.from.id;
       const args = ctx.message.text.split(' ');
-      console.log('args msg', JSON.stringify(args))
-      console.log('userId', userId);
-      console.log('type userId', typeof userId);
-      if (userId !== ADMIN_ID) return;
+      let month = (new Date().getMonth()) + 1;
+      const monthParams = args.find(item => item.includes('-m='));
+
+      if (monthParams) {
+        const monthValue = monthParams.split('=')[1];
+
+        if (monthValue && parseInt(monthValue)) {
+          month = parseInt(monthValue);
+        }
+      }
       //const member = await ctx.telegram.getChatMember(ctx.chat.id, userId);
 
       const sysMember = global.members.find( user => user.username ==ctx.from.username)
@@ -33,9 +48,41 @@ class TeleBotUtil extends EventEmitter {
         userId: ctx.from.id,
         username: ctx.from.username,
         name: sysMember.name,
+        month,
         message: ctx.message.text,
       });
-      ctx.reply(`🆔 Your chat ID sdasd is: ${ctx.chat.id}`);
+    });
+
+    this.bot.command('showChart', async (ctx) => {
+      const userId = ctx.from.id;
+      const args = ctx.message.text.split(' ');
+      //const member = await ctx.telegram.getChatMember(ctx.chat.id, userId);
+
+      const sysMember = global.members.find( user => user.username == ctx.from.username)
+
+      if (!sysMember) return;
+      this.emit('showChart', {
+        userId: ctx.from.id,
+        username: ctx.from.username,
+        name: sysMember.name,
+        message: ctx.message.text,
+      });
+    });
+
+    this.bot.command('showPayment', async (ctx) => {
+      const sysMember = global.members.find( user => user.username == ctx.from.username)
+
+      if (!sysMember) return;
+      this.emit('showPayment', {
+        userId: ctx.from.id,
+        username: ctx.from.username,
+        name: sysMember.name,
+        message: ctx.message.text,
+      });
+    });
+
+    this.bot.command('showQR', async (ctx) => {
+      this.emit('showQR', {});
     });
 
     this.bot.launch();

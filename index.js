@@ -107,8 +107,28 @@ app.listen(3000, () => {
 TeleBotUtil.on('report', async (message) => {
   console.log('📩 Received notifyEvent:', message);
   const user_name = message?.name;
-  const month = 7;
+  const month = message?.month;
   const data = await LunchMoneyService.reportUser(user_name, month);
   await TelegramService.sendReportByMonth({user_name, month, ...data})
+  // Optional: reply back;
+})
+
+TeleBotUtil.on('showChart', async (message) => {
+  const user_name = message?.name;
+  const month = 7;
+  await ChartService.showChartByUser(user_name);
+  // Optional: reply back;
+})
+
+TeleBotUtil.on('showQR', async () => {
+  const myQrUrl = 'https://static.meeyid.com/uploads/8043b789-5c60-4feb-ba53-289c4a77659b.png';
+  await TeleBotUtil.sendImgUrl(myQrUrl, '<b>VUONGNV QRCODE</b>');
+  // Optional: reply back;
+})
+
+TeleBotUtil.on('showPayment', async (message) => {
+  const user_name = message?.name;
+  const data = await LunchDebitService.showPayment(user_name);
+  await TeleBotUtil.sendMessageHTML(data);
   // Optional: reply back;
 })
