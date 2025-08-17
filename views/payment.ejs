@@ -48,6 +48,12 @@
             <button id="submitChart">Report chart user</button>
         </div>
         <div>
+            <button id="submitTable">Report table user</button>
+        </div>
+        <div>
+            <button id="showPayment">Show Payment user</button>
+        </div>
+        <div>
             <button id="submitDebt">Report notifi debt user</button>
         </div>
     </div>
@@ -107,6 +113,41 @@
                     month
                 }
                 const url = `${baseUrl}/chart-by-user`;
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(body),
+                    success: function (res) {
+                        alert('success')
+                    }
+                });
+            })
+            $('#submitTable').click(() => {
+                const user_name = $('#userSelect').val();
+                const month = parseInt($('#monthSelect').val());
+                const body = {
+                    user_name,
+                    month
+                }
+                const url = `${baseUrl}/report-table-user`;
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(body),
+                    success: function (res) {
+                        alert('success')
+                    }
+                });
+            })
+            $('#showPayment').click(() => {
+                const user_name = $('#userSelect').val();
+                const month = parseInt($('#monthSelect').val());
+                const body = {
+                    user_name
+                }
+                const url = `${baseUrl}/show-payment`;
                 $.ajax({
                     url: url,
                     type: 'POST',

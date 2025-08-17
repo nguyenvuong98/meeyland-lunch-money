@@ -21,7 +21,7 @@ class TeleBotUtil extends EventEmitter {
       let messageCommand = `/help show list command available\n`;
       messageCommand += `/showQR show QR code\n`;
       messageCommand += `/report show report each month, eg: /report | /report -m=7\n`;
-      messageCommand += `/showChart show report as chart (only current month)\n`;
+      messageCommand += `/showTable show report as table (only current month)\n`;
       messageCommand += `/showPayment show all payment`;
 
       ctx.reply(messageCommand);
@@ -53,7 +53,7 @@ class TeleBotUtil extends EventEmitter {
       });
     });
 
-    this.bot.command('showChart', async (ctx) => {
+    this.bot.command('showTable', async (ctx) => {
       const userId = ctx.from.id;
       const args = ctx.message.text.split(' ');
       //const member = await ctx.telegram.getChatMember(ctx.chat.id, userId);
@@ -61,7 +61,7 @@ class TeleBotUtil extends EventEmitter {
       const sysMember = global.members.find( user => user.username == ctx.from.username)
 
       if (!sysMember) return;
-      this.emit('showChart', {
+      this.emit('showTable', {
         userId: ctx.from.id,
         username: ctx.from.username,
         name: sysMember.name,

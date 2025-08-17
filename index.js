@@ -57,6 +57,16 @@ app.get('/payment', function(req, res) {
   res.render('payment');
 });
 
+app.post('/send-message', async function(req, res) {
+  const {message} = req.body;
+  if (!message ) {
+    res.json({data: true})
+    return
+  }
+  await TeleBotUtil.sendLogMessage(message);
+  res.json({data: true})
+});
+
 app.post('/notify-telegram', async function(req, res) {
   const {title, members, total, showQr} = req.body;
   await TelegramService.sendLunchMoney(title, members, total, showQr);
@@ -83,6 +93,13 @@ app.post('/report-by-user', async function(req, res) {
   res.json({data})
 });
 
+app.post('/report-table-user', async function(req, res) {
+  const {user_name, month} = req.body
+  const moneyData = await LunchMoneyService.reportUser(user_name, month);
+  const data = await ChartService.showTableByMonth(user_name, month, moneyData);
+  res.json({data})
+});
+
 app.post('/payment', async function(req, res) {
   const body = req.body
   const data = await LunchDebitService.insertMany(body);
@@ -94,6 +111,13 @@ app.post('/debt', async function(req, res) {
   const {user_name, month} = req.body
   const data = await LunchMoneyService.reportUser(user_name, month);
   await TelegramService.sendDebtNotifi({data, userName: user_name, month})
+  res.json({data: true})
+});
+
+app.post('/show-payment', async function(req, res) {
+  const {user_name} = req.body
+  const data = await LunchDebitService.showPayment(user_name);
+  await TeleBotUtil.sendMessageHTML(data);
   res.json({data: true})
 });
 
@@ -113,10 +137,11 @@ TeleBotUtil.on('report', async (message) => {
   // Optional: reply back;
 })
 
-TeleBotUtil.on('showChart', async (message) => {
+TeleBotUtil.on('showTable', async (message) => {
   const user_name = message?.name;
-  const month = 7;
-  await ChartService.showChartByUser(user_name);
+  const month = (new Date().getMonth()) + 1;
+  const moneyData = await LunchMoneyService.reportUser(user_name, month);
+  await ChartService.showTableByMonth(user_name, month, moneyData);
   // Optional: reply back;
 })
 

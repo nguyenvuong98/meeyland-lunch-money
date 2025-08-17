@@ -8,11 +8,56 @@ const height = 400;
 const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour: '#fff' });
 const TeleBotUtil = require("../TeleBotUtil");
 const moment = require('moment');
-
+function makeBoxTable(dates, rows) {
+    // Example input:
+    // dates = ["02/08","05/08","06/08","08/08","11/08","15/08"];
+    // rows = [
+    //   { label: "Nước", values: [34167, 28750, 0, 0, 0, 34000] },
+    //   { label: "Ăn trưa", values: [70000, 40000, 40000, 77600, 90000, 35000] }
+    // ]
+  
+    const headers = ["Date", ...rows.map(r => r.label)];
+  
+    // Build body: each date is one row
+    const body = dates.map((d, i) => [
+      d,
+      ...rows.map(r => r.values[i].toString())
+    ]);
+  
+    // compute column widths
+    const colWidths = headers.map((h, i) =>
+      Math.max(h.length, ...body.map(r => r[i].length))
+    );
+  
+    function pad(text, width) {
+      return text.padEnd(width, " ");
+    }
+  
+    let out = "";
+  
+    // top border
+    out += "┌" + colWidths.map(w => "─".repeat(w + 2)).join("┬") + "┐\n";
+  
+    // header row
+    out += "│ " + headers.map((h, i) => pad(h, colWidths[i])).join(" │ ") + " │\n";
+  
+    // header separator
+    out += "├" + colWidths.map(w => "─".repeat(w + 2)).join("┼") + "┤\n";
+  
+    // rows
+    for (const r of body) {
+      out += "│ " + r.map((c, i) => pad(c, colWidths[i])).join(" │ ") + " │\n";
+    }
+  
+    // bottom border
+    out += "└" + colWidths.map(w => "─".repeat(w + 2)).join("┴") + "┘\n";
+  
+    return `<pre>${out}</pre>`;
+  }
+  
 class ChartService {
-    async showChartByUser(user_name = '') {
-        if (!user_name) { return; }
-
+    async getReportUserData(user_name) {
+        console.log('hereh')
         const lunchMoney = await LunchMoneyRepository.findInMonth(user_name);
         if (!lunchMoney && !lunchMoney.length) { return}
         const labels = []
@@ -58,7 +103,7 @@ class ChartService {
                     value: item.amount
                 })
             }
-            if (!indexData) {
+            if (indexData < 0) {
                 dataValues.push({
                     date: label,
                     value: 0
@@ -66,12 +111,43 @@ class ChartService {
             }
         });
 
+        return { labels, dataValues, waterValues, totalMoney}
+    }
+    async showChartByUser(user_name = '') {
+        if (!user_name) { return; }
+
+        const { labels, dataValues, waterValues, totalMoney} = await this.getReportUserData(user_name)
+
         await this.saveImgChart(user_name, totalMoney, labels, dataValues.map(item => item.value), waterValues.map(item => item.value))
         return true
     }
 
-    async sendReportByMonth() {
+    async showTableByMonth(user_name = '', month, { totalMoneyLunch, totalMoneyWater, total, totalPayment}) {
+        if (!user_name) { return; }
 
+        const filterMonth = month ? month : new Date().getMonth() + 1;
+        const money = total - totalPayment;
+        const message = `<b>Tiền ăn tháng ${filterMonth}</b>\n<b>Tên:</b> ${user_name}\n<b>Tiền ăn:</b> <code>${totalMoneyLunch}</code>\n<b>Tiền nước:</b> <code>${totalMoneyWater}</code>\n<b>Tổng tiền:</b> <code>${total}</code>\n`
+                        + `<b>Đã thanh toán</b>: <code>${totalPayment}</code>\n`
+                        + `<b>${money >= 0 ? 'Còn thiếu' : 'Còn thừa'}</b>: <code>${Math.abs(money)}</code>`
+        const { labels, dataValues, waterValues, totalMoney} = await this.getReportUserData(user_name)
+
+        await this.sendTableByMonth(message, totalMoney, labels, dataValues.map(item => item.value), waterValues.map(item => item.value))
+        return true
+    }
+
+    async sendTableByMonth(message, totalMoney = 0, labels = [], dataValues = [], waterValues = []) {
+        let msg = message;
+        const rows = [
+            { label: "Nước", values: waterValues},
+            { label: "Ăn trưa", values: dataValues},
+        ]
+        const table = makeBoxTable(labels, rows)
+        msg += table
+
+        await TeleBotUtil.sendMessageHTML(msg)
+
+        return true;
     }
 
     async saveImgChart(user_name, totalMoney = 0, labels = [], dataValues = [], waterValues = []) {
