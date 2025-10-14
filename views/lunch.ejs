@@ -75,31 +75,6 @@
                     <option value=12>12</option>
                 </select>
             </div>
-            <!-- <div>
-                <label for="">vuongnv</label>
-                <input type="checkbox" class="member-checkbox" value="vuongnv">
-            </div>
-            <div>
-                <label for="">ngocnd</label>
-                <input type="checkbox" class="member-checkbox" value="ngocnd">
-            </div>
-            <div>
-                <label for="">longng</label>
-                <input type="checkbox" class="member-checkbox" value="longng">
-            </div>
-            <div>
-                <label for="">hunghoang</label>
-                <input type="checkbox" class="member-checkbox" value="hunghoang">
-            </div>
-            <div>
-                <label for="">dungnt</label>
-                <input type="checkbox" class="member-checkbox" value="dungnt">
-                <input type="text" class="grouped-input" value="value1">
-            </div>
-            <div>
-                <label for="">tule</label>
-                <input type="checkbox" class="member-checkbox" value="tule">
-            </div> -->
         </div>
         <div>
             <button id="submit">Send</button>
@@ -110,9 +85,18 @@
     </div>
 </body>
 <script>
-    const baseUrl = 'http://64.44.115.238:3000'
-    //const baseUrl = 'http://localhost:3000'
+    //const baseUrl = 'http://64.44.115.238:3000'
+    const baseUrl = 'http://localhost:3000'
     $(document).ready(function () {
+        $('#moneyType').change((val) => {
+            const value = val.currentTarget.value;
+            console.log('val', val)
+            if (value == '0') {
+                $('#title').val('Tiền ăn trưa')
+            } else {
+                $('#title').val('Tiền Cafe')
+            }
+        })
         $('#monthSelect').val(new Date().getMonth() + 1)
         const getResult = () => {
             const result = [];

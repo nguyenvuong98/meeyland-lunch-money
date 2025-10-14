@@ -1,9 +1,11 @@
 const LunchMoneyRepository = require('../repository/lunch_money.repository');
 const LunchDebitRepository = require('../repository/lunch_debit.repository');
+const LunchBalanceService = require('./LunchBalanceService');
 
 class LunchMoneyService {
     async create(input = []) {
         const proccess = [];
+        const proccess2 = [];
 
         input.forEach(item => {
             const insertData = {
@@ -13,10 +15,12 @@ class LunchMoneyService {
                 month: item.month ? item.month : (new Date().getMonth() + 1)
             }
 
-            proccess.push(LunchMoneyRepository.create(insertData))
+            proccess.push(LunchMoneyRepository.create(insertData));
+            proccess2.push(LunchBalanceService.create(item.user_name, parseInt(`-${item.amount}`)));
         })
 
         await Promise.all(proccess);
+        Promise.all(proccess2);
         return { data: true };
     }
 

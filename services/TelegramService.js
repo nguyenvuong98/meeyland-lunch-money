@@ -9,10 +9,10 @@ class TelegramService {
             LunchMoneyService.create(members);
             const memberName = members.map(user => user.user_name).join(', ');
             if (showQr) {
-                const myQrUrl = 'https://static.meeyid.com/uploads/8043b789-5c60-4feb-ba53-289c4a77659b.png';
+                //const myQrUrl = 'https://static.meeyid.com/uploads/8043b789-5c60-4feb-ba53-289c4a77659b.png';
                 const formatted = moment().format('YYYY-MM-DD HH:mm:ss');
                 const caption = `<b>${title  ||'Lunch money'}</b>\n<b>Total:</b> <code>${total}</code>\n<b>Member:</b> ${memberName}\n<b>Date:</b> ${formatted}`;
-                await TeleBotUtil.sendImgUrl(myQrUrl, caption);
+                await TeleBotUtil.sendMessageHTML(caption);
             } else {
                 await TeleBotUtil.sendLogMessage(title);
             }

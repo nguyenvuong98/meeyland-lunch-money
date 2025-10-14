@@ -5,6 +5,7 @@ const TelegramService = require('./services/TelegramService');
 const TeleBotUtil = require("./TeleBotUtil");
 const LunchMoneyService = require('./services/MoneyLunchService');
 const LunchDebitService = require('./services/LunchDebitService');
+const LunchBalanceService = require('./services/LunchBalanceService');
 const ChartService = require('./services/ChartService');
 
 global.members = [
@@ -121,6 +122,12 @@ app.post('/show-payment', async function(req, res) {
   res.json({data: true})
 });
 
+app.post('/ranking-debit', async function(req, res) {
+  const data = await LunchBalanceService.ranking();
+  //await TeleBotUtil.sendMessageHTML(data);
+  res.json({data: data})
+});
+
 app.listen(3000, () => {
   console.log(process.env.TELEGRAM_BOT_TOKEN);
   console.log('server listen port 3000')
@@ -155,5 +162,11 @@ TeleBotUtil.on('showPayment', async (message) => {
   const user_name = message?.name;
   const data = await LunchDebitService.showPayment(user_name);
   await TeleBotUtil.sendMessageHTML(data);
+  // Optional: reply back;
+})
+
+TeleBotUtil.on('rankingDebit', async (message) => {
+  const data = await LunchBalanceService.ranking();
+  //await TeleBotUtil.sendMessageHTML(data);
   // Optional: reply back;
 })

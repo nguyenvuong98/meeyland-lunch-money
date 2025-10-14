@@ -1,4 +1,5 @@
 const LunchDebitRepository  = require('../repository/lunch_debit.repository');
+const LunchBalanceService  = require('./LunchBalanceService');
 const moment = require('moment');
 
 class LunchDebitService {
@@ -7,6 +8,7 @@ class LunchDebitService {
         
         const record = [];
         const month = (new Date().getMonth()) + 1;
+        const processBalance = [];
         input.forEach(item => {
             const insertData = {
                 user_name: item.user_name,
@@ -14,9 +16,11 @@ class LunchDebitService {
                 month: item.month ? parseInt(item.month) : month
             }
             record.push(insertData)
+            processBalance.push(LunchBalanceService.create(item.user_name, parseInt(item.payment)));
         })
 
         await LunchDebitRepository.insertMany(record)
+        Promise.all(processBalance);
         return { data: true};
     }
 
