@@ -11,7 +11,7 @@ class TelegramService {
             if (showQr) {
                 //const myQrUrl = 'https://static.meeyid.com/uploads/8043b789-5c60-4feb-ba53-289c4a77659b.png';
                 const formatted = moment().format('YYYY-MM-DD HH:mm:ss');
-                const caption = `<b>${title  ||'Lunch money'}</b>\n<b>Total:</b> <code>${total}</code>\n<b>Member:</b> ${memberName}\n<b>Date:</b> ${formatted}`;
+                const caption = `<b>${title  ||'Lunch money'}</b>\n<b>Mã QR:</b>    /showQR\n<b>Xem báo cáo:</b>    /report\n<b>Total:</b> <code>${total}</code>\n<b>Member:</b> ${memberName}\n<b>Date:</b> ${formatted}`;
                 await TeleBotUtil.sendMessageHTML(caption);
             } else {
                 await TeleBotUtil.sendLogMessage(title);
@@ -30,7 +30,8 @@ class TelegramService {
         const money = total - totalPayment;
         const message = `<b>Báo cáo tháng ${filterMonth}</b>\n<b>Tên:</b> ${user_name}\n<b>Tiền ăn:</b> <code>${totalMoneyLunch}</code>\n<b>Tiền nước:</b> <code>${totalMoneyWater}</code>\n<b>Tổng tiền:</b> <code>${total}</code>\n`
                         + `<b>Đã thanh toán</b>: <code>${totalPayment}</code>\n`
-                        + `<b>${money >= 0 ? 'Còn thiếu' : 'Còn thừa'}</b>: <code>${Math.abs(money)}</code>`
+                        + `<b>${money >= 0 ? 'Còn thiếu' : 'Còn thừa'}</b>: <code>${Math.abs(money)}</code>\n`
+                        + `<b>Xem chi tiết:</b>  /showTable`
         await TeleBotUtil.sendMessageHTML(message);
         return true;
     }
@@ -92,6 +93,7 @@ class TelegramService {
 
         const childMsg = `${ money == 0 ? 'Đã thanh toán đầy đủ':  money > 0 ? 'Còn thiếu' : 'Còn thừa'}`;
         let message = `${tag.tag} tháng ${targetMonth}  ${childMsg} <code>${Math.abs(money)}</code>\n`;
+        message += `<b>Xem thông tin thanh toán:</b> /showPayment`
         // if (money >= 0) {
         //     message += `<b>MAU TRẢ NỢ!</b>`
         // }
