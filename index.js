@@ -128,6 +128,12 @@ app.post('/ranking-debit', async function(req, res) {
   res.json({data: data})
 });
 
+app.post('/report-by-year', async function(req, res) {
+  const data = await LunchMoneyService.reportByYear();
+  await TelegramService.sendReportByYearTemplate(data);
+  res.json({data: data})
+});
+
 app.listen(3000, () => {
   console.log(process.env.TELEGRAM_BOT_TOKEN);
   console.log('server listen port 3000')

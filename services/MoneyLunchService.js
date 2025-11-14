@@ -3,6 +3,37 @@ const LunchDebitRepository = require('../repository/lunch_debit.repository');
 const LunchBalanceService = require('./LunchBalanceService');
 
 class LunchMoneyService {
+    async reportByYear() {
+        const currentYear = new Date().getFullYear();
+
+        const moneyData = await LunchMoneyRepository.aggregateByYear(currentYear);
+        const paymentData = await LunchDebitRepository.aggregateByYear(currentYear);
+
+        const data = [];
+        moneyData.forEach(item => {
+            item.userName = item._id.userName;
+            const monthIndex = data.findIndex(x => x.month == item._id.month);
+
+            if (monthIndex < 0) {
+                data.push({month: item._id.month, data: []});
+            }
+
+            const monthIndex2 = data.findIndex(x => x.month == item._id.month);
+            const paymentItem = paymentData.find(x => item._id.userName == x._id.userName && item._id.month == x._id.month);
+
+            if (!paymentItem) {
+                data[monthIndex2].data.push(item);
+                return;
+            }
+
+            item.totalPayment = paymentItem.totalPayment;
+            item.debit = item.totalAmount - item.totalPayment;
+            data[monthIndex2].data.push(item);
+        })
+
+        return data;
+    }
+
     async create(input = []) {
         const proccess = [];
         const proccess2 = [];

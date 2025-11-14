@@ -1,6 +1,35 @@
 const models = require('../models');
 
 class MessageChatRepository {
+    static async aggregateByYear(year) {
+        const query = [
+            {
+                $match: {
+                    createdAt: {
+                        $gte: new Date(year, 0, 1),
+                        $lt: new Date(year + 1, 0, 1)
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        userName: '$user_name',
+                        month: '$month'
+                    },
+                    totalAmount: { $sum: '$amount' }
+                }
+            },
+            {
+                $sort: {
+                    '_id.month': -1,
+                    '_id.userName': -1
+                }
+            }
+        ];
+        return models.lunch_money.aggregate(query);
+    }
+
     static async findInMonth(user_name = '') {
         const startOfMonth = new Date();
         startOfMonth.setDate(1);

@@ -1,6 +1,36 @@
 const models = require('../models');
 
 class LunchDebitRepository {
+    static async aggregateByYear(year) {
+        const query = [
+            {
+                $match: {
+                    createdAt: {
+                        $gte: new Date(year, 0, 1),
+                        $lt: new Date(year + 1, 0, 1)
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        userName: '$user_name',
+                        month: '$month'
+                    },
+                    totalPayment: { $sum: '$payment' }
+                }
+            },
+            {
+                $sort: {
+                    '_id.month': -1,
+                    '_id.userName': -1
+                }
+            }
+        ];
+
+        return models.lunch_debit.aggregate(query);
+    }
+
     static async findInMonth(user_name = '') {
         const month = (new Date().getMonth()) + 1;
 

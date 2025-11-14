@@ -4,6 +4,30 @@ const moment = require('moment');
 
 
 class TelegramService {
+    async sendReportByYearTemplate(data = []) {
+        if (!data.length) return;
+
+        const currentYear = new Date().getFullYear();
+        let msg = `<b>Report ${currentYear}:</b>\n`;
+        data.forEach(item => {
+            msg += `<b>Tháng ${item.month}</b>\n`;
+
+            if (!item.data?.length) return;
+            
+            item.data.forEach(x => {
+                msg += `     <b>${x.userName}</b>\n`;
+                msg += `           <b>Đã dùng</b>: <code>${x.totalAmount}</code> vnđ\n`;
+                msg += `           <b>Đã thanh toán</b>: <code>${x.totalPayment}</code> vnđ\n`;
+                msg += `           ${x.debit > 0 ? `<b>Còn thiếu</b> <code>${x.debit}</code> vnđ`: x.debit < 0 ? `<b>Còn thừa</b> <code>${x.debit}</code> vnđ` : 'Không có ghi nợ'}\n`;
+            })
+
+            msg += '\n';
+        })
+
+        await TeleBotUtil.sendMessageHTML(msg);
+
+        return true;
+    }
     async sendLunchMoney(title, members, total, showQr = true) {
         try{
             LunchMoneyService.create(members);
