@@ -3,35 +3,42 @@ const LunchDebitRepository = require('../repository/lunch_debit.repository');
 const LunchBalanceService = require('./LunchBalanceService');
 
 class LunchMoneyService {
-    async reportByYear() {
+    async reportByYear(userName) {
         const currentYear = new Date().getFullYear();
 
-        const moneyData = await LunchMoneyRepository.aggregateByYear(currentYear);
-        const paymentData = await LunchDebitRepository.aggregateByYear(currentYear);
+        const moneyData = await LunchMoneyRepository.aggregateByYear(currentYear, userName);
+        const paymentData = await LunchDebitRepository.aggregateByYear(currentYear, userName);
 
         const data = [];
+        let totalAmount = 0;
+        let totalPayment = 0;
+        let totalDebit = 0;
         moneyData.forEach(item => {
             item.userName = item._id.userName;
             const monthIndex = data.findIndex(x => x.month == item._id.month);
 
             if (monthIndex < 0) {
-                data.push({month: item._id.month, data: []});
+                data.push({month: item._id.month});
             }
 
             const monthIndex2 = data.findIndex(x => x.month == item._id.month);
             const paymentItem = paymentData.find(x => item._id.userName == x._id.userName && item._id.month == x._id.month);
+            totalAmount += item.totalAmount;
 
             if (!paymentItem) {
-                data[monthIndex2].data.push(item);
+                data[monthIndex2] = {...data[monthIndex2], ...item}
+                //data[monthIndex2].push(item);
                 return;
             }
 
+            totalPayment += paymentItem.totalPayment;
             item.totalPayment = paymentItem.totalPayment;
             item.debit = item.totalAmount - item.totalPayment;
-            data[monthIndex2].data.push(item);
+            totalDebit += item.debit;
+            data[monthIndex2] = {...data[monthIndex2], ...item}
         })
 
-        return data;
+        return {data, totalDebit, totalPayment, totalAmount};
     }
 
     async create(input = []) {

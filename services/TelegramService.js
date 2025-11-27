@@ -1,26 +1,64 @@
 const TeleBotUtil = require("../TeleBotUtil");
 const LunchMoneyService = require('./MoneyLunchService');
 const moment = require('moment');
-
+const TAGS  = [
+    {
+        name: 'vuongnv',
+        tag: '@vuongnv98',
+        username: 'vuongnv98',
+    },
+    {
+        name: 'ngocnd',
+        tag: '@ngocnd95',
+        username: 'ngocnd95',
+    },
+    {
+        name: 'longng',
+        tag: '@hin2510',
+        username: 'hin2510',
+    },
+    {
+        name: 'dungnt',
+        tag: '@dungnt1709',
+        username: 'dungnt1709',
+    },
+    {
+        name: 'tule',
+        tag: '@tule111',
+        username: 'tule111',
+    },
+    {
+        name: 'hunghoang',
+        tag: '@hungu1099',
+        username: 'hungu1099',
+    }
+]
 
 class TelegramService {
-    async sendReportByYearTemplate(data = []) {
-        if (!data.length) return;
+    async sendReportByYearTemplate(data, userName) {
+        if (!data) return;
 
+        const tag = TAGS.find(x => x.name === userName);
         const currentYear = new Date().getFullYear();
-        let msg = `<b>Report ${currentYear}:</b>\n`;
-        data.forEach(item => {
-            msg += `<b>Tháng ${item.month}</b>\n`;
-
-            if (!item.data?.length) return;
+        let msg = `<b>${userName}:${tag.tag} - ${currentYear}:</b>\n`;
+        msg += `<b>Đã chi:</b> <code>${data.totalAmount}</code> vnđ\n`;
+        msg += `<b>Đã thanh toán:</b> <code>${data.totalPayment}</code> vnđ\n`;
+        if (data.totalDebit > 0) {
+            msg += `<b>Còn thiếu:</b> <code>${data.totalDebit}</code> vnđ\n`;
+        }
+        msg += '\n';
+        data?.data.forEach(item => {
+            msg += `<b>Tháng ${item.month}:</b>`;
+            msg += `  đã chi: <code>${item.totalAmount}</code> vnđ,`;
+            if (item.debit > 0) {
+                msg += `  đã trả: <code>${item.totalPayment}</code> vnđ,`;
+                msg += `  còn thiếu: <code>${item.debit}</code> vnđ`;
+            } else if (item.debit < 0) {
+                msg += `  còn thừa: <code>${Math.abs(item.debit)}</code> vnđ`;
+            } else {
+                msg += `  Đã thanh toán.`;
+            }
             
-            item.data.forEach(x => {
-                msg += `     <b>${x.userName}</b>\n`;
-                msg += `           <b>Đã dùng</b>: <code>${x.totalAmount}</code> vnđ\n`;
-                msg += `           <b>Đã thanh toán</b>: <code>${x.totalPayment}</code> vnđ\n`;
-                msg += `           ${x.debit > 0 ? `<b>Còn thiếu</b> <code>${x.debit}</code> vnđ`: x.debit < 0 ? `<b>Còn thừa</b> <code>${x.debit}</code> vnđ` : 'Không có ghi nợ'}\n`;
-            })
-
             msg += '\n';
         })
 
@@ -55,6 +93,7 @@ class TelegramService {
         const message = `<b>Báo cáo tháng ${filterMonth}</b>\n<b>Tên:</b> ${user_name}\n<b>Tiền ăn:</b> <code>${totalMoneyLunch}</code>\n<b>Tiền nước:</b> <code>${totalMoneyWater}</code>\n<b>Tổng tiền:</b> <code>${total}</code>\n`
                         + `<b>Đã thanh toán</b>: <code>${totalPayment}</code>\n`
                         + `<b>${money >= 0 ? 'Còn thiếu' : 'Còn thừa'}</b>: <code>${Math.abs(money)}</code>\n`
+                        + `<b>Xem chi tiêu trong năm:</b>  /debit\n`
                         + `<b>Xem chi tiết:</b>  /showTable`
         await TeleBotUtil.sendMessageHTML(message);
         return true;

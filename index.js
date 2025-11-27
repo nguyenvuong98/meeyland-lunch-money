@@ -129,8 +129,9 @@ app.post('/ranking-debit', async function(req, res) {
 });
 
 app.post('/report-by-year', async function(req, res) {
-  const data = await LunchMoneyService.reportByYear();
-  await TelegramService.sendReportByYearTemplate(data);
+  const {user_name} = req.body
+  const data = await LunchMoneyService.reportByYear(user_name);
+  await TelegramService.sendReportByYearTemplate(data, user_name);
   res.json({data: data})
 });
 
@@ -171,8 +172,9 @@ TeleBotUtil.on('showPayment', async (message) => {
   // Optional: reply back;
 })
 
-TeleBotUtil.on('rankingDebit', async (message) => {
-  const data = await LunchBalanceService.ranking();
-  //await TeleBotUtil.sendMessageHTML(data);
+TeleBotUtil.on('debit', async (message) => {
+  const user_name = message?.name;
+  const data = await LunchMoneyService.reportByYear(user_name);
+  await TelegramService.sendReportByYearTemplate(data, user_name);
   // Optional: reply back;
 })

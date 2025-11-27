@@ -1,10 +1,11 @@
 const models = require('../models');
 
 class MessageChatRepository {
-    static async aggregateByYear(year) {
+    static async aggregateByYear(year, userName) {
         const query = [
             {
                 $match: {
+                    user_name: userName,
                     createdAt: {
                         $gte: new Date(year, 0, 1),
                         $lt: new Date(year + 1, 0, 1)
