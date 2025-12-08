@@ -26,6 +26,9 @@ class LunchMoneyService {
             totalAmount += item.totalAmount;
 
             if (!paymentItem) {
+                item.totalPayment = 0;
+                totalDebit += item.totalAmount;
+                item.debit = item.totalAmount;
                 data[monthIndex2] = {...data[monthIndex2], ...item}
                 //data[monthIndex2].push(item);
                 return;

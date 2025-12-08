@@ -93,7 +93,7 @@ class TelegramService {
         const message = `<b>Báo cáo tháng ${filterMonth}</b>\n<b>Tên:</b> ${user_name}\n<b>Tiền ăn:</b> <code>${totalMoneyLunch}</code>\n<b>Tiền nước:</b> <code>${totalMoneyWater}</code>\n<b>Tổng tiền:</b> <code>${total}</code>\n`
                         + `<b>Đã thanh toán</b>: <code>${totalPayment}</code>\n`
                         + `<b>${money >= 0 ? 'Còn thiếu' : 'Còn thừa'}</b>: <code>${Math.abs(money)}</code>\n`
-                        + `<b>Xem chi tiêu trong năm:</b>  /debit\n`
+                        + `<b>Xem chi tiêu trong năm:</b>  /me\n`
                         + `<b>Xem chi tiết:</b>  /showTable`
         await TeleBotUtil.sendMessageHTML(message);
         return true;

@@ -81,11 +81,11 @@ class TeleBotUtil extends EventEmitter {
       });
     });
 
-    this.bot.command('debit', async (ctx) => {
+    this.bot.command('me', async (ctx) => {
       const sysMember = global.members.find( user => user.username == ctx.from.username)
 
       if (!sysMember) return;
-      this.emit('debit', {
+      this.emit('me', {
         userId: ctx.from.id,
         username: ctx.from.username,
         name: sysMember.name,

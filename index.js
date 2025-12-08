@@ -172,7 +172,7 @@ TeleBotUtil.on('showPayment', async (message) => {
   // Optional: reply back;
 })
 
-TeleBotUtil.on('debit', async (message) => {
+TeleBotUtil.on('me', async (message) => {
   const user_name = message?.name;
   const data = await LunchMoneyService.reportByYear(user_name);
   await TelegramService.sendReportByYearTemplate(data, user_name);
