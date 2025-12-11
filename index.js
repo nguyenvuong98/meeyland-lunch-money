@@ -10,31 +10,37 @@ const ChartService = require('./services/ChartService');
 
 global.members = [
   {
+      id: 1366333714,
       name: 'vuongnv',
       tag: '@vuongnv98',
       username: 'vuongnv98',
   },
   {
+      id: 7216384291,
       name: 'ngocnd',
       tag: '@ngocnd95',
       username: 'ngocnd95',
   },
   {
+      id: 1924243844,
       name: 'longng',
       tag: '@hin2510',
       username: 'hin2510',
   },
   {
+      id: 7661343004,
       name: 'dungnt',
       tag: '@dungznt',
       username: 'dungznt',
   },
   {
+      id: 627477895,
       name: 'tule',
       tag: '@tule111',
       username: 'tule111',
   },
   {
+      id: 5722947901,
       name: 'hunghoang',
       tag: '@hungu1099',
       username: 'hungu1099',

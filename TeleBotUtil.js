@@ -41,7 +41,7 @@ class TeleBotUtil extends EventEmitter {
       }
       //const member = await ctx.telegram.getChatMember(ctx.chat.id, userId);
 
-      const sysMember = global.members.find( user => user.username ==ctx.from.username)
+      const sysMember = global.members.find( user => user.id === ctx.from.id)
 
       if (!sysMember) return;
       this.emit('report', {
@@ -58,7 +58,7 @@ class TeleBotUtil extends EventEmitter {
       const args = ctx.message.text.split(' ');
       //const member = await ctx.telegram.getChatMember(ctx.chat.id, userId);
 
-      const sysMember = global.members.find( user => user.username == ctx.from.username)
+      const sysMember = global.members.find( user => user.id === ctx.from.id)
 
       if (!sysMember) return;
       this.emit('showTable', {
@@ -70,7 +70,7 @@ class TeleBotUtil extends EventEmitter {
     });
 
     this.bot.command('showPayment', async (ctx) => {
-      const sysMember = global.members.find( user => user.username == ctx.from.username)
+      const sysMember = global.members.find( user => user.id === ctx.from.id)
 
       if (!sysMember) return;
       this.emit('showPayment', {
@@ -82,7 +82,7 @@ class TeleBotUtil extends EventEmitter {
     });
 
     this.bot.command('me', async (ctx) => {
-      const sysMember = global.members.find( user => user.username == ctx.from.username)
+      const sysMember = global.members.find( user => user.id === ctx.from.id)
 
       if (!sysMember) return;
       this.emit('me', {
