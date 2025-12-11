@@ -19,8 +19,8 @@ const TAGS  = [
     },
     {
         name: 'dungnt',
-        tag: '@dungnt1709',
-        username: 'dungnt1709',
+        tag: '@dungznt',
+        username: 'dungznt',
     },
     {
         name: 'tule',
