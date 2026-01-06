@@ -1,6 +1,25 @@
 const models = require('../models');
 
 class MessageChatRepository {
+    static async aggregateAll(userName) {
+        const query = [
+            {
+                $match: {
+                    user_name: userName,
+                }
+            },
+            {
+                $group: {
+                  _id: { $year: "$createdAt" },
+                  totalAmount: { $sum: "$amount" },
+                  count: { $sum: 1 }
+                }
+              },
+            { $sort: { _id: 1 } }
+        ];
+        return models.lunch_money.aggregate(query);
+    }
+
     static async aggregateByYear(year, userName) {
         const query = [
             {

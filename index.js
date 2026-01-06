@@ -141,6 +141,13 @@ app.post('/report-by-year', async function(req, res) {
   res.json({data: data})
 });
 
+app.post('/report-all', async function(req, res) {
+  const {user_name} = req.body
+  const data = await LunchMoneyService.reportAllByUser(user_name);
+  await TelegramService.sendReportAllTemplate(data, user_name);
+  res.json({data: data})
+});
+
 app.listen(3000, () => {
   console.log(process.env.TELEGRAM_BOT_TOKEN);
   console.log('server listen port 3000')
@@ -182,5 +189,19 @@ TeleBotUtil.on('me', async (message) => {
   const user_name = message?.name;
   const data = await LunchMoneyService.reportByYear(user_name);
   await TelegramService.sendReportByYearTemplate(data, user_name);
+  // Optional: reply back;
+})
+
+TeleBotUtil.on('2025', async (message) => {
+  const user_name = message?.name;
+  const data = await LunchMoneyService.reportByYear(user_name, 2025);
+  await TelegramService.sendReportByYearTemplate(data, user_name, 2025);
+  // Optional: reply back;
+})
+
+TeleBotUtil.on('all', async (message) => {
+  const user_name = message?.name;
+  const data = await LunchMoneyService.reportAllByUser(user_name);
+  await TelegramService.sendReportAllTemplate(data, user_name);
   // Optional: reply back;
 })

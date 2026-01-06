@@ -22,7 +22,9 @@ class TeleBotUtil extends EventEmitter {
       messageCommand += `/showQR show QR code\n`;
       messageCommand += `/report show report each month, eg: /report | /report -m=7\n`;
       messageCommand += `/showTable show report as table (only current month)\n`;
-      messageCommand += `/showPayment show all payment`;
+      messageCommand += `/showPayment show all payment\n`;
+      messageCommand += `/all show all lunch money and payment\n`;
+      messageCommand += `/2025 show  lunch money in 2025\n`;
 
       ctx.reply(messageCommand);
     });
@@ -86,6 +88,30 @@ class TeleBotUtil extends EventEmitter {
 
       if (!sysMember) return;
       this.emit('me', {
+        userId: ctx.from.id,
+        username: ctx.from.username,
+        name: sysMember.name,
+        message: ctx.message.text,
+      });
+    });
+
+    this.bot.command('2025', async (ctx) => {
+      const sysMember = global.members.find( user => user.id === ctx.from.id)
+
+      if (!sysMember) return;
+      this.emit('2025', {
+        userId: ctx.from.id,
+        username: ctx.from.username,
+        name: sysMember.name,
+        message: ctx.message.text,
+      });
+    });
+
+    this.bot.command('all', async (ctx) => {
+      const sysMember = global.members.find( user => user.id === ctx.from.id)
+
+      if (!sysMember) return;
+      this.emit('all', {
         userId: ctx.from.id,
         username: ctx.from.username,
         name: sysMember.name,

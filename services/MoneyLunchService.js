@@ -3,8 +3,22 @@ const LunchDebitRepository = require('../repository/lunch_debit.repository');
 const LunchBalanceService = require('./LunchBalanceService');
 
 class LunchMoneyService {
-    async reportByYear(userName) {
-        const currentYear = new Date().getFullYear();
+    async reportAllByUser(userName) {
+        if (!userName) return;
+
+        const lunchMoney = await LunchMoneyRepository.aggregateAll(userName);
+        const debit = await LunchDebitRepository.aggregateAll(userName);
+
+        let totalPayment = debit?.length ? debit[0].totalPayment : 0;
+        lunchMoney.forEach(item => {
+            item.debit = item.totalAmount <= totalPayment ? 0 : Math.abs(item.totalAmount - totalPayment);
+            totalPayment = totalPayment > item.totalAmount ? Math.abs(totalPayment - item.totalAmount) : 0;
+        })
+        return {lunchMoney, debit}
+    }
+
+    async reportByYear(userName, year) {
+        const currentYear = year || new Date().getFullYear();
 
         const moneyData = await LunchMoneyRepository.aggregateByYear(currentYear, userName);
         const paymentData = await LunchDebitRepository.aggregateByYear(currentYear, userName);

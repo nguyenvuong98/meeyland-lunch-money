@@ -35,11 +35,34 @@ const TAGS  = [
 ]
 
 class TelegramService {
-    async sendReportByYearTemplate(data, userName) {
+    async sendReportAllTemplate(data, userName) {
+        if (!data) return;
+        
+        const tag = TAGS.find(x => x.name === userName);
+        if (!tag) return;
+        const lunchMoney = data.lunchMoney?.length ? data.lunchMoney.sort((a, b) => b._id - a._id) : [];
+        let msg = `<b>${userName}:${tag.tag} - Report:</b>\n`;
+
+        lunchMoney.forEach(item => {
+            msg += `<b>Năm ${item._id}:</b>\n`;
+            msg += `       Đã chi: <code>${item.totalAmount}</code> vnđ   -->   `;
+            if (item.debit > 0) {
+                msg += `Còn thiếu: <code>${item.debit}</code> vnđ\n`;
+            } else {
+                msg += `Đã thanh toán đầy đủ\n`;
+            }
+        })
+
+        await TeleBotUtil.sendMessageHTML(msg);
+
+        return true;
+    }
+
+    async sendReportByYearTemplate(data, userName, year) {
         if (!data) return;
 
         const tag = TAGS.find(x => x.name === userName);
-        const currentYear = new Date().getFullYear();
+        const currentYear = year || new Date().getFullYear();
         let msg = `<b>${userName}:${tag.tag} - ${currentYear}:</b>\n`;
         msg += `<b>Đã chi:</b> <code>${data.totalAmount}</code> vnđ\n`;
         msg += `<b>Đã thanh toán:</b> <code>${data.totalPayment}</code> vnđ\n`;
