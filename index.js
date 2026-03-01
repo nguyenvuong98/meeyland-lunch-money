@@ -7,6 +7,7 @@ const LunchMoneyService = require('./services/MoneyLunchService');
 const LunchDebitService = require('./services/LunchDebitService');
 const LunchBalanceService = require('./services/LunchBalanceService');
 const ChartService = require('./services/ChartService');
+const ChatBotService = require('./services/ChatBotService');
 
 global.members = [
   {
@@ -145,6 +146,12 @@ app.post('/report-all', async function(req, res) {
   const {user_name} = req.body
   const data = await LunchMoneyService.reportAllByUser(user_name);
   await TelegramService.sendReportAllTemplate(data, user_name);
+  res.json({data: data})
+});
+
+app.post('/chat', async function(req, res) {
+  const {question} = req.body
+  const data = await ChatBotService.extractQuery(question);
   res.json({data: data})
 });
 
