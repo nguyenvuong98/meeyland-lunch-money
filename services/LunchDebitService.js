@@ -52,7 +52,7 @@ class LunchDebitService {
         let message = `<b>Payment info - ${user_name}</b>\n`
 
         data.forEach(item => {
-            message += `Đã thanh toán <code>${item.payment}</code> cho tháng <b>${item.month}</b> vào ngày ${moment(item.createdAt).format('DD/MM/YYYY')}\n`;
+            message += `Đã thanh toán <code>${item.payment}</code> vào ngày ${moment(item.createdAt).format('DD/MM/YYYY')}\n`;
         })
 
         return message;

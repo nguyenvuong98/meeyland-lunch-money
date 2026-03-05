@@ -57,7 +57,6 @@ function makeBoxTable(dates, rows) {
   
 class ChartService {
     async getReportUserData(user_name) {
-        console.log('hereh')
         const lunchMoney = await LunchMoneyRepository.findInMonth(user_name);
         if (!lunchMoney && !lunchMoney.length) { return}
         const labels = []
@@ -127,7 +126,7 @@ class ChartService {
 
         const filterMonth = month ? month : new Date().getMonth() + 1;
         const money = total - totalPayment;
-        const message = `<b>Tiền ăn tháng ${filterMonth}</b>\n<b>Tên:</b> ${user_name}\n<b>Tiền ăn:</b> <code>${totalMoneyLunch}</code>\n<b>Tiền nước:</b> <code>${totalMoneyWater}</code>\n<b>Tổng tiền:</b> <code>${total}</code>\n`
+        const message = `<b>Tiền ăn tháng ${filterMonth}</b>\n<b>Tên:</b> ${user_name}\n<b>Tiền ăn:</b> <code>${totalMoneyLunch}</code>\n<b>Tiền nước:</b> <code>${totalMoneyWater}</code>\n<b>Tổng tiền trong tháng:</b> <code>${totalMoneyLunch+totalMoneyWater}</code>\n<b>Tất cả tổng tiền:</b> <code>${total}</code>\n`
                         + `<b>Đã thanh toán</b>: <code>${totalPayment}</code>\n`
                         + `<b>${money >= 0 ? 'Còn thiếu' : 'Còn thừa'}</b>: <code>${Math.abs(money)}</code>`
         const { labels, dataValues, waterValues, totalMoney} = await this.getReportUserData(user_name)

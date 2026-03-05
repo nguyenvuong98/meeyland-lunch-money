@@ -83,7 +83,6 @@ app.post('/notify-telegram', async function(req, res) {
 
 app.post('/luch-money', async function(req, res) {
   const body = req.body
-  console.log('body', body)
   const data = await LunchMoneyService.create(req.body);
   res.json({data})
 });
@@ -163,7 +162,6 @@ app.listen(3000, () => {
 
 
 TeleBotUtil.on('report', async (message) => {
-  console.log('📩 Received notifyEvent:', message);
   const user_name = message?.name;
   const month = message?.month;
   const data = await LunchMoneyService.reportUser(user_name, month);
@@ -213,10 +211,11 @@ TeleBotUtil.on('all', async (message) => {
   // Optional: reply back;
 })
 
-TeleBotUtil.on('a', async (message) => {
+TeleBotUtil.on('r', async (message) => {
   const msg = message.message;
-  const data = await LunchMoneyService.sendNPLMessage(msg);
-  await TelegramService.sendReportAllTemplate(data, user_name);
+  const user_name = message?.name;
+  const data = await LunchMoneyService.sendNPLMessage(msg, user_name);
+  await TelegramService.sendMessageHTML(data);
   // Optional: reply back;
 })
 

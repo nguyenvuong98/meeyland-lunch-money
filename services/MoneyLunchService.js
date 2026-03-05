@@ -3,6 +3,7 @@ const LunchDebitRepository = require('../repository/lunch_debit.repository');
 const LunchBalanceService = require('./LunchBalanceService');
 const ChatBotService = require('./ChatBotService');
 const {getDateFilter} = require('../util');
+const LuchMoneyRepository = require('../repository/lunch_money.repository');
 
 class LunchMoneyService {
     mappingDebit(amounts = [], debits = []) {
@@ -11,9 +12,11 @@ class LunchMoneyService {
         if (!amounts?.length) return;
 
         amounts.forEach(user => {
+            if (!user._id || user._id === 'null') return;
             const debitItem = debits.find(x => x._id === user._id);
+            const tag = global.members.find(x => x.name == user._id);
             const item = {
-                userName: user._id,
+                userName: tag ? tag.tag : user._id,
                 totalAmount: user.totalAmount,
                 totalPayment: debitItem?.totalPayment,
                 debit: debitItem?.totalPayment - user.totalAmount,
@@ -24,26 +27,28 @@ class LunchMoneyService {
 
         return result;
     }
-    async sendNPLMessage(message = '') {
+    async sendNPLMessage(message = '', currentUser = null) {
         if (!message) return;
         
-        const objectFilter = await ChatBotService.extractQuery(message);
+        const objectFilter = await ChatBotService.extractQuery(message, currentUser);
 
         if (!objectFilter) return;
 
         const process = [];
         const intentFilter = objectFilter.intent;
         let filter = {}
-        let result = null;
+        let result = 'Ngoài phạm vi trả lời';
         const fromDate = getDateFilter(objectFilter.day, objectFilter.month - 1, objectFilter.year);
         const toDate = new Date();
         switch (intentFilter) {
             case 'total_amount':
                 filter = {
                     'lunch_money': {
-                        user_name: {$in: objectFilter.user_names},
                         createdAt: objectFilter.filterRange == 0 ? fromDate : {$gte: fromDate, $lte: toDate}
                     }
+                }
+                if (objectFilter?.user_names?.length > 0) {
+                    filter['lunch_money'] ['user_name'] = {$in: objectFilter.user_names}
                 }
                 result = await  LunchMoneyRepository.aggregate(filter['lunch_money']);
                 break;
@@ -58,11 +63,16 @@ class LunchMoneyService {
             case 'total_debit':
                 filter = {
                     'lunch_money': {
-                        user_name: {$in: objectFilter.user_names},
+                        
                     },
                     'lunch_debit': {
-                        user_name: {$in: objectFilter.user_names},
+                       
                     }
+                }
+
+                if (objectFilter?.user_names?.length > 0) {
+                    filter['lunch_money'] ['user_name'] = {$in: objectFilter.user_names}
+                    filter['lunch_debit'] ['user_name'] = {$in: objectFilter.user_names}
                 }
                 process.push(LunchMoneyRepository.aggregate(filter['lunch_money']))
                 process.push(LunchDebitRepository.aggregate(filter['lunch_debit']))
@@ -164,15 +174,9 @@ class LunchMoneyService {
             records = await LunchMoneyRepository.find({ user_name, month})
         }
 
-        let paymentRecord = []
-
-        if (!month) {
-            paymentRecord = await LunchDebitRepository.findInMonth(user_name);
-        } else {
-            paymentRecord = await LunchDebitRepository.find({user_name, month});
-        }
-        const totalPayment = paymentRecord.reduce((sum, item) => item.payment + sum, 0);
-
+        const aggPayment = await LunchDebitRepository.aggregate({user_name});
+        const aggAmount = await LuchMoneyRepository.aggregate({user_name});
+        const totalPayment = aggPayment?.length > 0 ?aggPayment[0].totalPayment : 0;
         const totalMoneyLunch = records.reduce((sum, item) => {
             return item.type === '0' ? sum + item.amount : sum;
         }, 0);
@@ -181,7 +185,7 @@ class LunchMoneyService {
             return item.type === '1' ? sum + item.amount : sum;
         }, 0);
 
-        const total = totalMoneyLunch + totalMoneyWater;
+        const total = aggAmount?.length > 0 ?aggAmount[0].totalAmount : 0;
 
         return { totalMoneyLunch, totalMoneyWater, total, totalPayment};
     }

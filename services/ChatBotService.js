@@ -1,68 +1,73 @@
 const OpenAI = require('openai');
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 })
 
 const SELF_PRONOUNS = [
-    "tôi", "mình", "tao", "t", "em", "anh", "tui", "i",
-  ]
-  
-  const GROUP_PRONOUNS = [
-    "mọi người",
-    "tất cả",
-    "bọn tao",
-    "tụi tao",
-    "tụi mình",
-    "cả team",
-    "anh em",
-    "all",
-    "everyone"
-  ]
+  "tôi", "mình", "tao", "t", "em", "anh", "tui", "i",
+]
+
+const GROUP_PRONOUNS = [
+  "mọi người",
+  "tất cả",
+  "bọn tao",
+  "tụi tao",
+  "tụi mình",
+  "cả team",
+  "anh em",
+  "all",
+  "everyone"
+]
 
 class ChatBotService {
-    async answerDebit(data = []) {
-      if (!data?.length) return '';
+  async answerDebit(data = []) {
+    if (!data?.length) return '';
 
-      let template = ``
-      data.forEach(item => {
-        template += `Tên: ${item.userName}, totalAmount: ${item.totalAmount}, totalPayment: ${item.totalPayment}, debit: ${item.debit}, status=${item.debit >=0 ? '0' : '1'}\n`;
-      })
+    let template = ``
+    data.forEach(item => {
+      template += `Tên: ${item.userName}, totalAmount: ${item.totalAmount}, totalPayment: ${item.totalPayment}, debit: ${Math.abs(item.debit)}, status=${item.debit >= 0 ? '0' : '1'}\n`;
+    })
 
-      const response = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: `
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: `
               Bạn là chủ nợ 
               Dựa vào câu hỏi của người dùng có dạng:
-              - Tên: vuongnv, totalAmount: 10000, totalPayment: 90000, debit: -10000
+              - name: vuongnv, totalAmount: 10000, totalPayment: 90000, debit: -10000
+              
               Với:
                 vuongnv là tên người dùng
-                totalAmount là tổng tiền vuongnv đã ứng trước
-                totalPayment là tổng tiền vuongnv đã trả
-                debit là dư nợ của vuongnv
-                status=(1|0) với status = 0 là  đủ hoặc thừa => nên được khen, status = 1 thì phải mỉa mai
-              Trả về đoan text với 4 thông tin tên, totalAmount, totalPayment, debit
+                totalAmount là tổng tiền vuongnv đã ứng trước, đã tiêu, đã dành cho việc ăn uống
+                totalPayment là tổng tiền vuongnv đã trả, đã thanh toán
+                debit là tiền còn thiếu, dư nợ, cao su của vuongnv
+                status=(1|0) với status = 0 là  đủ hoặc thừa => nên được khen, status = 1 thì phải mỉa mai (debit lớn hơn 200000 thì mức độ mỉa mai phải thật lớn)
+              
+              Trả về đoan text với 4 thông tin tên, totalAmount, totalPayment, debit 
+              (các thông tin về totalAmount, totalPayment, debit viết bên trong cặp <code></code> để nguyên số không cần chỉnh sửa lại)
+              (thông tin về name viết bên trong cặp <b></b> và đừng xóa ký tự '@' nếu có)
+              (Có thể có nhiều người trong thông tin câu hỏi,hãy trả lời đầy đủ số người với ngôn ngữ tự nhiên nhất)
             `
-          },
-          {
-            role: 'user',
-            content: template
-          }
-        ]
-      })
+        },
+        {
+          role: 'user',
+          content: template
+        }
+      ]
+    })
 
-      return response.choices[0].message
-    } 
-    async extractQuery(question, currentUser = null) {
-        const response = await openai.chat.completions.create({
-            model: 'gpt-4o-mini',
-            response_format: { type: 'json_object' },
-            messages: [
-                {
-                    role: 'system',
-                    content: `
+    return response.choices[0].message?.content
+  }
+  async extractQuery(question, currentUser = null) {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      response_format: { type: 'json_object' },
+      messages: [
+        {
+          role: 'system',
+          content: `
       Phân tích câu hỏi và trả JSON:
       Thời gian hiện tại: ${new Date().toISOString()}
       Người dùng hiện tại: ${currentUser}
@@ -117,13 +122,13 @@ class ChatBotService {
         còn lại trả về 1
       Chỉ JSON.
       `
-                },
-                { role: 'user', content: question }
-            ]
-        })
+        },
+        { role: 'user', content: question }
+      ]
+    })
 
-        return JSON.parse(response.choices[0].message.content)
-    }
+    return JSON.parse(response.choices[0].message.content)
+  }
 }
 
 module.exports = new ChatBotService();
