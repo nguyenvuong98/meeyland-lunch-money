@@ -1,6 +1,22 @@
 const models = require('../models');
 
 class LunchDebitRepository {
+    static async aggregate(match) {
+        const query = [
+            {
+                $match: match
+            },
+            {
+                $group: {
+                    _id: "$user_name",
+                    totalPayment: { $sum: "$payment" },
+                    count: { $sum: 1 }
+                }
+            }
+        ];
+        return models.lunch_debit.aggregate(query);
+    }
+
     static async aggregateAll(userName) {
         const query = [
             {

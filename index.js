@@ -151,7 +151,7 @@ app.post('/report-all', async function(req, res) {
 
 app.post('/chat', async function(req, res) {
   const {question} = req.body
-  const data = await ChatBotService.extractQuery(question);
+  const data = await LunchMoneyService.sendNPLMessage(question);
   res.json({data: data})
 });
 
@@ -212,3 +212,11 @@ TeleBotUtil.on('all', async (message) => {
   await TelegramService.sendReportAllTemplate(data, user_name);
   // Optional: reply back;
 })
+
+TeleBotUtil.on('a', async (message) => {
+  const msg = message.message;
+  const data = await LunchMoneyService.sendNPLMessage(msg);
+  await TelegramService.sendReportAllTemplate(data, user_name);
+  // Optional: reply back;
+})
+

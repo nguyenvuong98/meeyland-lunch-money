@@ -187,6 +187,11 @@ class TelegramService {
 
         return true
     }
+
+    async sendMessageHTML(msg) {
+        await TeleBotUtil.sendMessageHTML(msg);
+        return true
+    }
 }
 
 module.exports = new TelegramService();

@@ -1,6 +1,23 @@
 const models = require('../models');
 
-class MessageChatRepository {
+class LuchMoneyRepository {
+    static async aggregate(match) {
+        const query = [
+            {
+                $match: match
+            },
+            {
+                $group: {
+                  _id: "$user_name",
+                  totalAmount: { $sum: "$amount" },
+                  count: { $sum: 1 }
+                }
+              },
+            { $sort: { _id: 1 } }
+        ];
+        return models.lunch_money.aggregate(query);
+    }
+
     static async aggregateAll(userName) {
         const query = [
             {
@@ -87,4 +104,4 @@ class MessageChatRepository {
     }
 }
 
-module.exports = MessageChatRepository;
+module.exports = LuchMoneyRepository;

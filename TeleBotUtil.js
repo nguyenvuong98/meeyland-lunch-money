@@ -4,8 +4,8 @@ const { SocksProxyAgent } = require('socks-proxy-agent');
 
 const proxyUrl = process.env.TELEGRAM_PROXY;
 const agent = new SocksProxyAgent(proxyUrl);
-const groupId = process.env.TELEGRAM_GROUP_ID;
-//const groupId = process.env.TELEGRAM_GROUP_ID_TEST;
+//const groupId = process.env.TELEGRAM_GROUP_ID;
+const groupId = process.env.TELEGRAM_GROUP_ID_TEST;
 
 const ADMIN_ID = 1366333714;
 const userTelegram = [];
@@ -28,6 +28,25 @@ class TeleBotUtil extends EventEmitter {
 
       ctx.reply(messageCommand);
     });
+    this.bot.command('a', async (ctx) => {
+      const userId = ctx.from.id;
+
+      if (userId !== 1366333714) {
+        return;
+      }
+    
+      const sysMember = global.members.find( user => user.id === ctx.from.id)
+
+      if (!sysMember) return;
+      this.emit('a', {
+        userId: ctx.from.id,
+        username: ctx.from.username,
+        name: sysMember.name,
+        month,
+        message: ctx.message.text,
+      });
+    });
+  
     this.bot.command('report', async (ctx) => {
       const userId = ctx.from.id;
       const args = ctx.message.text.split(' ');

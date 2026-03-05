@@ -1,8 +1,82 @@
 const LunchMoneyRepository = require('../repository/lunch_money.repository');
 const LunchDebitRepository = require('../repository/lunch_debit.repository');
 const LunchBalanceService = require('./LunchBalanceService');
+const ChatBotService = require('./ChatBotService');
+const {getDateFilter} = require('../util');
 
 class LunchMoneyService {
+    mappingDebit(amounts = [], debits = []) {
+        const result = [];
+
+        if (!amounts?.length) return;
+
+        amounts.forEach(user => {
+            const debitItem = debits.find(x => x._id === user._id);
+            const item = {
+                userName: user._id,
+                totalAmount: user.totalAmount,
+                totalPayment: debitItem?.totalPayment,
+                debit: debitItem?.totalPayment - user.totalAmount,
+            }
+
+            result.push(item);
+        })
+
+        return result;
+    }
+    async sendNPLMessage(message = '') {
+        if (!message) return;
+        
+        const objectFilter = await ChatBotService.extractQuery(message);
+
+        if (!objectFilter) return;
+
+        const process = [];
+        const intentFilter = objectFilter.intent;
+        let filter = {}
+        let result = null;
+        const fromDate = getDateFilter(objectFilter.day, objectFilter.month - 1, objectFilter.year);
+        const toDate = new Date();
+        switch (intentFilter) {
+            case 'total_amount':
+                filter = {
+                    'lunch_money': {
+                        user_name: {$in: objectFilter.user_names},
+                        createdAt: objectFilter.filterRange == 0 ? fromDate : {$gte: fromDate, $lte: toDate}
+                    }
+                }
+                result = await  LunchMoneyRepository.aggregate(filter['lunch_money']);
+                break;
+            case 'total_payment':
+                filter = {
+                    'lunch_debit': {
+                        user_name: {$in: objectFilter.user_names},
+                    }
+                }
+                result = await LunchDebitRepository.find(filter['lunch_debit'])
+                break;
+            case 'total_debit':
+                filter = {
+                    'lunch_money': {
+                        user_name: {$in: objectFilter.user_names},
+                    },
+                    'lunch_debit': {
+                        user_name: {$in: objectFilter.user_names},
+                    }
+                }
+                process.push(LunchMoneyRepository.aggregate(filter['lunch_money']))
+                process.push(LunchDebitRepository.aggregate(filter['lunch_debit']))
+                const data = await Promise.all(process);
+                const mappingData = this.mappingDebit(data[0], data[1]);
+                result = await ChatBotService.answerDebit(mappingData)
+                break;
+            default:
+                break;
+        }
+
+        return result;
+    }
+
     async reportAllByUser(userName) {
         if (!userName) return;
 
