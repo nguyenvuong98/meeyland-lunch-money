@@ -80,6 +80,14 @@ class LunchMoneyService {
                 const mappingData = this.mappingDebit(data[0], data[1]);
                 result = await ChatBotService.answerDebit(mappingData)
                 break;
+            case 'payment': 
+                const paymentRecords = objectFilter?.length ? objectFilter.filter(x => x.user_name !== null) : [];
+
+                if (!paymentRecords.length) break;
+
+                await LunchDebitService.insertMany(paymentRecords);
+
+                break;
             default:
                 break;
         }

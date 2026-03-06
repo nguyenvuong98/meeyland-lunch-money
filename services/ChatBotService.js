@@ -20,6 +20,15 @@ const GROUP_PRONOUNS = [
 ]
 
 class ChatBotService {
+  // async answerPayment(data = []) {
+  //   if (!data?.length) return '';
+
+  //   let template = ``
+
+  //   data.forEach(item => {
+  //     template +=
+  //   })
+  // }
   async answerDebit(data = []) {
     if (!data?.length) return '';
 
@@ -97,6 +106,61 @@ class ChatBotService {
           "user_name": "tule"
         }
       ]
+      
+     Nhiệm vụ:
+      Từ câu input tiếng Việt, trích xuất thông tin thanh toán và trả về KẾT QUẢ DUY NHẤT là một JSON ARRAY.
+
+      Quy tắc:
+      - LUÔN trả về một JSON ARRAY, kể cả khi chỉ có 1 người.
+      - KHÔNG BAO GIỜ trả về object đơn lẻ.
+      - Mỗi người thanh toán là 1 phần tử trong mảng.
+      - Nếu không có user_name thì để null.
+      - Nếu không có số tiền thì payment = 0.
+      - payment là number, không chứa đơn vị tiền tệ.
+
+      Format bắt buộc:
+      [
+        {
+          "intent": "payment",
+          "user_name": string | null,
+          "payment": number
+        }
+      ]
+
+      Ví dụ:
+
+      Input:
+      vuongnv thanh toan 1000
+
+      Output:
+      [
+        {
+          "intent": "payment",
+          "user_name": "vuongnv",
+          "payment": 1000
+        }
+      ]
+
+      Input:
+      vuongnv trả 50000VND, an trả 20000
+
+      Output:
+      [
+        {
+          "intent": "payment",
+          "user_name": "vuongnv",
+          "payment": 50000
+        },
+        {
+          "intent": "payment",
+          "user_name": "an",
+          "payment": 20000
+        }
+      ]
+
+      Chỉ trả về JSON. Không giải thích.
+
+      Nếu là câu hỏi khác
       {
         "intent": "total_amount" | "total_payment" | "total_debit",
         "scope": "self" | "group" | "specific" | "multi",
@@ -105,6 +169,7 @@ class ChatBotService {
         "month": number | null,
         "year": number | null,
         "filterRange": 0 | 1,
+        "payment": number | 0,
       }
       
       Dựa vào name trong danh sách user và trả về user_name vào list user_names

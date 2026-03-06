@@ -4,8 +4,8 @@ const { SocksProxyAgent } = require('socks-proxy-agent');
 
 const proxyUrl = process.env.TELEGRAM_PROXY;
 const agent = new SocksProxyAgent(proxyUrl);
-const groupId = process.env.TELEGRAM_GROUP_ID;
-//const groupId = process.env.TELEGRAM_GROUP_ID_TEST;
+//const groupId = process.env.TELEGRAM_GROUP_ID;
+const groupId = process.env.TELEGRAM_GROUP_ID_TEST;
 
 const ADMIN_ID = 1366333714;
 const userTelegram = [];
