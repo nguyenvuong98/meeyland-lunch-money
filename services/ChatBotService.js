@@ -60,6 +60,106 @@ class ChatBotService {
 
     return response.choices[0].message?.content
   }
+  async extractPaymentQuery(question, currentUser) {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      response_format: { type: 'json_object' },
+      messages: [
+        {
+          role: 'system',
+          content: `
+            Phân tích câu hỏi và trả JSON:
+            Thời gian hiện tại: ${new Date().toISOString()}
+        Người dùng hiện tại: ${currentUser}
+        Danh sách user: [
+          {
+            "name": "Hưng",
+            "user_name": "hunghoang"
+          },
+          {
+            "name": "Long",
+            "user_name": "longng"
+          },
+          {
+            "name": "Ngọc",
+            "user_name": "ngocnd"
+          },
+          {
+            "name": "Dũng",
+            "user_name": "dungnt"
+          },
+          {
+            "name": "Vương",
+            "user_name": "vuongnv"
+          },
+          {
+            "name": "Tú",
+            "user_name": "tule"
+          }
+        ]
+        {
+          "intent": "payment",
+          "paymentInfo": [
+            {
+              user_name: string | null,
+              payment: number | 0
+            }
+          ],
+        }
+        Dựa vào câu hỏi trả về paymentInfo (là một danh sách) với tên người và số lượng tiền thanh toán tương ứng (nếu không tìm thấy thông tin người thì lấy Người dùng hiện tại)
+        VD:
+          input: Long gà đã thanh toán 10000vnd
+          output: 
+            {
+              "intent": "payment",
+              "paymentInfo": [
+                {
+                  user_name: 'longng',
+                  payment: 10000
+                }
+              ],
+            }
+
+          input: Long  gà  và ngocnd đã thanh toán 150000
+          output: 
+            {
+              "intent": "payment",
+              "paymentInfo": [
+                {
+                  user_name: 'longng',
+                  payment: 150000
+                },
+                {
+                  user_name: 'ngocnd',
+                  payment: 150000
+                }
+              ],
+            }
+
+          input: Long  gà   đã thanh toán 150000, ngocnd thanh toán 2000
+          output: 
+            {
+              "intent": "payment",
+              "paymentInfo": [
+                {
+                  user_name: 'longng',
+                  payment: 150000
+                },
+                {
+                  user_name: 'ngocnd',
+                  payment: 2000
+                }
+              ],
+            }
+            Chỉ JSON.
+          `,
+        },
+        { role: 'user', content: question }
+      ]
+    })
+
+    return JSON.parse(response.choices[0].message.content)
+  }
   async extractQuery(question, currentUser = null) {
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',

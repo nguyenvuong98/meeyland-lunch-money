@@ -4,6 +4,7 @@ const LunchBalanceService = require('./LunchBalanceService');
 const ChatBotService = require('./ChatBotService');
 const {getDateFilter} = require('../util');
 const LuchMoneyRepository = require('../repository/lunch_money.repository');
+const LunchDebitService = require('./LunchDebitService');
 
 class LunchMoneyService {
     mappingDebit(amounts = [], debits = []) {
@@ -26,6 +27,18 @@ class LunchMoneyService {
         })
 
         return result;
+    }
+    
+    async sendNPLPaymentMessage(message = '', currentUser = null) {
+        if (!message) return;
+        const extractData = await ChatBotService.extractPaymentQuery(message, currentUser);
+
+        if (!extractData?.paymentInfo?.length) return
+
+        await LunchDebitService.insertMany(extractData.paymentInfo)
+
+
+        return extractData?.paymentInfo;
     }
     async sendNPLMessage(message = '', currentUser = null) {
         if (!message) return;

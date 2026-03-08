@@ -28,6 +28,24 @@ class TeleBotUtil extends EventEmitter {
 
       ctx.reply(messageCommand);
     });
+    this.bot.command('p', async (ctx) => {
+      const userId = ctx.from.id;
+
+      if (userId !== 1366333714) {
+        return;
+      }
+    
+      const sysMember = global.members.find( user => user.id === ctx.from.id)
+
+      if (!sysMember) return;
+      this.emit('p', {
+        userId: ctx.from.id,
+        username: ctx.from.username,
+        name: sysMember.name,
+        message: ctx.message.text,
+      });
+    });
+  
     this.bot.command('a', async (ctx) => {
       const userId = ctx.from.id;
 

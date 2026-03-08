@@ -150,7 +150,7 @@ app.post('/report-all', async function(req, res) {
 
 app.post('/chat', async function(req, res) {
   const {question} = req.body
-  const data = await LunchMoneyService.sendNPLMessage(question);
+  const data = await LunchMoneyService.sendNPLPaymentMessage(question);
   res.json({data: data})
 });
 
@@ -216,6 +216,14 @@ TeleBotUtil.on('r', async (message) => {
   const user_name = message?.name;
   const data = await LunchMoneyService.sendNPLMessage(msg, user_name);
   await TelegramService.sendMessageHTML(data);
+  // Optional: reply back;
+})
+
+TeleBotUtil.on('p', async (message) => {
+  const msg = message.message;
+  const user_name = message?.name;
+  const data = await LunchMoneyService.sendNPLPaymentMessage(msg, user_name);
+  await TelegramService.sendUserPayment(data);
   // Optional: reply back;
 })
 

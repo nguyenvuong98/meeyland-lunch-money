@@ -125,10 +125,9 @@ class TelegramService {
     async sendUserPayment(input = []) {
         if (!input?.length) { return }
 
-        const month = new Date().getMonth() +1;
         let message = '<b>Payment notify</b>\n'
         input.forEach(item => {
-            message += `${item.user_name} đã thanh toán tiền ăn tháng ${item.month ? item.month : month}: <code>${item.payment}</code> vnd\n`
+            message += `${item.user_name} đã thanh toán : <code>${item.payment}</code> vnd\n`
         })
 
         await TeleBotUtil.sendMessageHTML(message);

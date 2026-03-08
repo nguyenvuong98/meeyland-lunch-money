@@ -57,6 +57,7 @@ class LunchDebitService {
 
         return message;
     }
+
 }
 
 module.exports = new LunchDebitService();
