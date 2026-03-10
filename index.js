@@ -95,8 +95,8 @@ app.post('/chart-by-user', async function(req, res) {
 
 app.post('/report-by-user', async function(req, res) {
   const {user_name, month} = req.body
-  const data = await LunchMoneyService.reportUser(user_name, month);
-  await TelegramService.sendReportByMonth({user_name, month, ...data})
+  const data = await LunchMoneyService.reportUserLLM(user_name);
+  await TelegramService.sendMessageHTML(data)
   res.json({data})
 });
 
@@ -164,8 +164,8 @@ app.listen(3000, () => {
 TeleBotUtil.on('report', async (message) => {
   const user_name = message?.name;
   const month = message?.month;
-  const data = await LunchMoneyService.reportUser(user_name, month);
-  await TelegramService.sendReportByMonth({user_name, month, ...data})
+  const data = await LunchMoneyService.reportUserLLM(user_name);
+  await TelegramService.sendMessageHTML(data)
   // Optional: reply back;
 })
 

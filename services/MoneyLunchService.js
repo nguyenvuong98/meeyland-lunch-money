@@ -176,6 +176,29 @@ class LunchMoneyService {
         return { data: true };
     }
 
+    async reportUserLLM(user_name) {
+        if (!user_name) { return; }
+
+        const filter = {
+            'lunch_money': {
+                user_name
+            },
+            'lunch_debit': {
+                user_name
+            }
+        }
+
+        const process = [
+            LunchMoneyRepository.aggregate(filter['lunch_money']),
+            LunchDebitRepository.aggregate(filter['lunch_debit'])
+        ]
+
+        const data = await Promise.all(process);
+        const mappingData = this.mappingDebit(data[0], data[1]);
+        const result = await ChatBotService.answerDebit(mappingData)
+
+        return result;
+    }
     async reportUser(user_name, month) {
         if (!user_name) { return; }
 
