@@ -20,12 +20,104 @@ const GROUP_PRONOUNS = [
 ]
 
 class ChatBotService {
+  async answerDebitDetail(data = {}) {
+    let template = ``
+    template += `name: ${data.userName}, `;
+    if (data?.partialItem) {
+      template += `partialDate = ${data?.partialItem._id}, partialTotalDebit = ${data?.partialItem.totalAmount}, partialDebit = ${data?.partialItem.debit}, `;
+    }
+
+    template += `fromDate = ${data.fromDate}, `;
+    template += `toDate = ${data.toDate}, `;
+    template += `totalDebit = ${data.totalDebit}, `;
+
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: `
+          Bạn là người cho vay tiền và đang nhắn tin đòi nợ.
+
+Write the response in Vietnamese.
+
+Context:
+- name: tên người đang nợ.
+
+${data?.partialItem ? `
+Partial payment information:
+- partialDate: ngày người vay đã trả một phần.
+- partialTotalDebit: tổng số tiền nợ ban đầu trước khi trả.
+- partialDebit: số tiền còn thiếu sau khi trả một phần.
+
+Important:
+- partialTotalDebit KHÔNG phải là số tiền đã trả.
+- partialTotalDebit là tổng nợ ban đầu.
+- partialDebit là số tiền còn thiếu sau khi trả một phần.
+` : ''}
+
+Debt information:
+- fromDate: ngày bắt đầu nợ nhưng chưa trả đồng nào.
+- toDate: đến ngày này vẫn đang nợ.
+- totalDebit: tổng số nợ chưa trả.
+
+Important rules:
+- Không cần tính toán lại các số liệu đã cho.
+- Chỉ sử dụng các số liệu được cung cấp.
+- Không hiển thị phép tính (ví dụ: không viết 100 + 20 = 120).
+
+Tone & style:
+- Viết như một tin nhắn chat bình thường.
+- Giọng điệu hơi cà khịa, hơi hách dịch, giống kiểu người đang khó chịu vì bị nợ tiền.
+- Có thể hơi phàn nàn hoặc nhắc khéo.
+- Không quá xúc phạm, nhưng thể hiện sự sốt ruột.
+- Không dùng các câu quá lịch sự như: "Mong bạn", "Vui lòng", "Xin hãy".
+
+Formatting rules:
+- Tên đặt trong thẻ <b></b>
+- Các số tiền đặt trong thẻ <code></code>
+
+Content rules:
+
+1. Nếu có thông tin trả nợ một phần:
+   - Nêu ngày trả một phần (partialDate)
+   - Tổng nợ ban đầu (partialTotalDebit)
+   - Số tiền còn thiếu (partialDebit)
+   - Viết thành 1 dòng riêng.
+
+2. Nếu có thông tin nợ toàn phần:
+   - Nêu khoảng thời gian nợ từ fromDate đến toDate
+   - Số nợ totalDebit
+   - Viết thành 1 dòng riêng.
+
+3. Hai phần thông tin trên phải tách thành 2 dòng.
+
+4. Nếu có cả partialDebit và totalDebit:
+   - Thêm một dòng tổng nợ phải trả
+   - Tổng nợ = partialDebit + totalDebit
+   - Chỉ hiển thị kết quả cuối cùng trong <code></code> (không hiển thị phép tính)
+
+5. Kết thúc bằng một câu nhắc trả nợ kiểu hơi cà khịa hoặc khó chịu nhẹ.
+
+Extra rule:
+Write the message slightly differently each time and avoid repeating the same structure.
+          `
+        },
+        {
+          role: 'user',
+          content: template
+        }
+      ]
+    })
+
+    return response.choices[0].message?.content
+  }
   async answerDebit(data = []) {
     if (!data?.length) return '';
 
     let template = ``
     data.forEach(item => {
-      template += `Tên: ${item.userName}, totalAmount: ${item.totalAmount}, totalPayment: ${item.totalPayment}, debit: ${Math.abs(item.debit)}, status=${item.debit >= 0 ? '0' : '1'}\n`;
+      template += `Tên: ${item.userName}, totalAmount: ${item.totalAmount}, totalPayment: ${item.totalPayment}, debit: ${(item.debit)}, status=${item.debit >= 0 ? '0' : '1'}\n`;
     })
 
     const response = await openai.chat.completions.create({
@@ -42,13 +134,14 @@ class ChatBotService {
                 vuongnv là tên người dùng
                 totalAmount là tổng tiền vuongnv đã ứng trước, đã tiêu, đã dành cho việc ăn uống
                 totalPayment là tổng tiền vuongnv đã trả, đã thanh toán
-                debit là tiền còn thiếu, dư nợ, cao su của vuongnv
-                status=(1|0) với status = 0 là  đủ hoặc thừa => nên được khen, status = 1 thì phải mỉa mai (debit lớn hơn 200000 thì mức độ mỉa mai phải thật lớn)
+                debit là tiền còn thiếu hoặc thừa vuongnv (số dương là thanh toán thừa với khoản vay, số âm là đang thiếu nợ)
+                status=1|0 với status = 0 là  đủ hoặc thừa => lời khen, status = 1 thì chê trách, mỉa mai (debit lớn hơn 200000 thì mức độ mỉa mai phải thật lớn)
               
               Trả về đoan text với 4 thông tin tên, totalAmount, totalPayment, debit 
               (các thông tin về totalAmount, totalPayment, debit viết bên trong cặp <code></code> để nguyên số không cần chỉnh sửa lại)
               (thông tin về name viết bên trong cặp <b></b> và đừng xóa ký tự '@' nếu có)
               (Có thể có nhiều người trong thông tin câu hỏi,hãy trả lời đầy đủ số người với ngôn ngữ tự nhiên nhất)
+              Kết câu có thêm gợi ý trả về nếu người dùng muốn xem chi tiết nga thiếu nợ và dùng command /detail(hãy để câu kết này riêng 1 dòng và gợi ý theo phong cách tự nhiên)
             `
         },
         {

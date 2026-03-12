@@ -8,6 +8,11 @@ const lunch_money = new Schema({
     user_name: String,
     amount: Number,
     type: String, // 0: ăn trưa, 1: nước uống
+    debit: Number,
+    payment_status: {
+       type: Number,
+       default: 0,
+    }, // o: unpaid, 1: paid , 2: partial
     month: {
         type: Number,
         default: (new Date().getMonth() + 1), // Default value

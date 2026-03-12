@@ -18,6 +18,42 @@ class LuchMoneyRepository {
         return models.lunch_money.aggregate(query);
     }
 
+    static async aggregatePaymentStatus(user_name) {
+        if(!user_name) return;
+        const query =[
+            {
+            $match: {
+                user_name,
+                payment_status: {$in: [0,2]}
+            }
+            },
+          {
+            $group: {
+              _id: {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$createdAt"
+                }
+              },
+              totalAmount: { $sum: "$amount" },
+              records: {
+                $push: {
+                  user_name: "$user_name",
+                  amount: "$amount",
+                  payment_status: "$payment_status",
+                  debit: "$debit",
+                  createdAt: "$createdAt"
+                }
+              }
+            }
+          },
+          {
+            $sort: { _id: 1 }
+          }
+        ]
+
+        return models.lunch_money.aggregate(query);
+    }
     static async aggregateAll(userName) {
         const query = [
             {
@@ -95,12 +131,16 @@ class LuchMoneyRepository {
         });
     }
 
+    static async updateMany(filter = {}, update = {}) {
+        return await models.lunch_money.updateMany(filter, update);
+    }
+
     static async count(query = {}) {
         return await models.lunch_money.countDocuments(query);
     }
 
-    static async find(query = {}) {
-        return await models.lunch_money.find(query);
+    static async find(query = {}, sort = {}) {
+        return await models.lunch_money.find(query).sort(sort);
     }
 }
 

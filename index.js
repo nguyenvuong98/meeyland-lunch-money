@@ -100,6 +100,14 @@ app.post('/report-by-user', async function(req, res) {
   res.json({data})
 });
 
+app.post('/debit-detail', async function(req, res) {
+  const {user_name} = req.body
+  const data = await LunchMoneyService.getDebitDetail(user_name);
+  const msg = await ChatBotService.answerDebitDetail(data);
+  await TelegramService.sendMessageHTML(msg)
+  res.json({data})
+});
+
 app.post('/report-table-user', async function(req, res) {
   const {user_name, month} = req.body
   const moneyData = await LunchMoneyService.reportUser(user_name, month);
@@ -224,6 +232,16 @@ TeleBotUtil.on('p', async (message) => {
   const user_name = message?.name;
   const data = await LunchMoneyService.sendNPLPaymentMessage(msg, user_name);
   await TelegramService.sendUserPayment(data);
+  // Optional: reply back;
+})
+
+TeleBotUtil.on('detail', async (message) => {
+  const user_name = message?.name;
+  const tag = message?.tag;
+  const data = await LunchMoneyService.getDebitDetail(user_name);
+  data.userName = tag;
+  const msg = await ChatBotService.answerDebitDetail(data);
+  await TelegramService.sendMessageHTML(msg)
   // Optional: reply back;
 })
 

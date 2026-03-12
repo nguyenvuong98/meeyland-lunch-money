@@ -58,6 +58,10 @@ class LunchDebitService {
         return message;
     }
 
+    async aggregate(match = {}) {
+        return LunchDebitRepository.aggregate(match);
+    }
+
 }
 
 module.exports = new LunchDebitService();

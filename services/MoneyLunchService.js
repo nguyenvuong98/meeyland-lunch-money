@@ -29,6 +29,32 @@ class LunchMoneyService {
         return result;
     }
     
+    async getDebitDetail(user_name) {
+        if (!user_name) return;
+
+        const aggLunchMoney = await LuchMoneyRepository.aggregatePaymentStatus(user_name);
+
+        if (!aggLunchMoney?.length) return;
+
+        const partialpaymentIndex = aggLunchMoney.findIndex(x => x?.records[0].payment_status === 2);
+        let partialItem = null;
+        if (partialpaymentIndex !== -1) {
+            partialItem = {
+                _id: aggLunchMoney[partialpaymentIndex]._id,
+                totalAmount: aggLunchMoney[partialpaymentIndex].totalAmount,
+                ...aggLunchMoney[partialpaymentIndex].records[0]
+            };
+            aggLunchMoney.splice(partialpaymentIndex, 1)
+        }
+
+        if(!aggLunchMoney.length) return {userName: user_name, partialItem}
+        const fromDate = aggLunchMoney[0]._id;
+        const toDate = aggLunchMoney[aggLunchMoney.length -1]._id;
+        let totalDebit = aggLunchMoney.reduce((sum, item) => sum + item.totalAmount, 0);
+       
+        return {userName: user_name, partialItem, fromDate, toDate, totalDebit}
+    }
+
     async sendNPLPaymentMessage(message = '', currentUser = null) {
         if (!message) return;
         const extractData = await ChatBotService.extractPaymentQuery(message, currentUser);
@@ -164,6 +190,7 @@ class LunchMoneyService {
                 user_name: item.user_name,
                 type: item.type,
                 amount: item.amount,
+                debit: item.amount,
                 month: item.month ? item.month : (new Date().getMonth() + 1)
             }
 
@@ -224,6 +251,14 @@ class LunchMoneyService {
         const total = aggAmount?.length > 0 ?aggAmount[0].totalAmount : 0;
 
         return { totalMoneyLunch, totalMoneyWater, total, totalPayment};
+    }
+
+    async getList(filter = {}) {
+        return LuchMoneyRepository.find(filter);
+    }
+
+    async updateMany(filter = {}, body = {}) {
+        return LuchMoneyRepository.updateMany(filter, body);
     }
 }
 
